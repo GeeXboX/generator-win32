@@ -293,7 +293,7 @@ void GenerateISO (HWND hwnd) {
     }
   }
 
-  fp = fopen ("iso/GEEXBOX/etc/lang", "w");
+  fp = fopen ("iso/GEEXBOX/etc/lang", "wb");
   fprintf (fp, "%s", langs[l].shortname);
   fclose (fp);
 
@@ -308,7 +308,7 @@ void GenerateISO (HWND hwnd) {
   sprintf(buf2, "iso/GEEXBOX/etc/lang.conf");  
   CopyFile(buf, buf2, FALSE);
 
-  fp = fopen ("iso/GEEXBOX/etc/subfont", "w");
+  fp = fopen ("iso/GEEXBOX/etc/subfont", "wb");
   fprintf (fp, "%s", sub_font);
   fclose (fp);
 
@@ -325,20 +325,20 @@ void GenerateISO (HWND hwnd) {
   } else {
     buf3[0] = '\0';
   }
-  fp = fopen ("iso/GEEXBOX/etc/audio", "w");
+  fp = fopen ("iso/GEEXBOX/etc/audio", "wb");
   fprintf (fp, "SPDIF=%s\n", !strcmp(audio, "spdif") ? "yes" : "no");
   fclose (fp);
   if (!strcmp(nvidia, "no")) {
-    fp = fopen ("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix", "a");
+    fp = fopen ("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix", "ab");
     fclose (fp);
   } else {
     DeleteFile("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix");
   }
-  fp = fopen ("iso/GEEXBOX/etc/view_img_timeout", "w");
+  fp = fopen ("iso/GEEXBOX/etc/view_img_timeout", "wb");
   fprintf (fp, "%s", tempimg);
   fclose (fp);
 
-  fp = fopen ("iso/GEEXBOX/etc/network", "w");
+  fp = fopen ("iso/GEEXBOX/etc/network", "wb");
   fprintf (fp, "PHY_TYPE=\"%s\"\n", phy);
   fprintf (fp, "WIFI_MODE=\"%s\"\n", wimo);
   fprintf (fp, "WIFI_WEP=\"%s\"\n", wiwe);
