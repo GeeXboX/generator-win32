@@ -341,7 +341,7 @@ void GenerateISO (HWND hwnd) {
     DeleteFile("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix");
   }
   fp = fopen ("iso/GEEXBOX/etc/view_img_timeout", "w");
-  fprintf (fp, tempimg);
+  fprintf (fp, "%s", tempimg);
   fclose (fp);
 
   fp = fopen ("iso/GEEXBOX/etc/network", "w");
