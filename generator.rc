@@ -61,4 +61,3 @@ BEGIN
     PUSHBUTTON      "&Ok", IDC_OK, 129, 152, 50, 14
     PUSHBUTTON      "&Help", IDC_HLP, 184, 152, 50, 14
 END
-

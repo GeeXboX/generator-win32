@@ -10,7 +10,7 @@ UPX	 = upx
 
 APP      = generator
 EXEFILE  = $(APP).exe
-OBJFILE  = $(APP).o 
+OBJFILE  = $(APP).o
 COFFFILE = $(APP).coff
 SRCFILE  = $(APP).c langconf.c
 RESFILE  = $(APP).rc

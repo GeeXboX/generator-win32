@@ -112,7 +112,7 @@ BOOL FileExists(char *file) {
   hSearch = FindFirstFile(file, &FileData);
   if (hSearch != INVALID_HANDLE_VALUE) {
     FindClose(hSearch);
-    return TRUE;    
+    return TRUE;
   } else {
     return FALSE;
   }
@@ -157,7 +157,7 @@ void MultipleFileDelete (char *token, char *src, BOOL recursive) {
   FindClose(hSearch);
 }
 
-void MultipleFileCopy (char *token, char *src, char *dest, 
+void MultipleFileCopy (char *token, char *src, char *dest,
                        char *exclude, BOOL recursive) {
   WIN32_FIND_DATA FileData;
   HANDLE hSearch;
@@ -217,11 +217,11 @@ void ExecuteToFile (char *cmdline, char *file) {
   HANDLE saveStdOutPut, output;
 
   saveStdOutPut = GetStdHandle(STD_OUTPUT_HANDLE);
-  output = CreateFile(file, GENERIC_WRITE, FILE_SHARE_WRITE, 
+  output = CreateFile(file, GENERIC_WRITE, FILE_SHARE_WRITE,
                       NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
   SetStdHandle(STD_OUTPUT_HANDLE, output);
 
-  if ((saveStdOutPut == INVALID_HANDLE_VALUE) 
+  if ((saveStdOutPut == INVALID_HANDLE_VALUE)
       || (output == INVALID_HANDLE_VALUE))
     return; /* Can't get output */
 
@@ -304,8 +304,8 @@ void GenerateISO (HWND hwnd) {
   sprintf(buf, "language/menu_%s.conf", langs[l].shortname);
   sprintf(buf2, "iso/GEEXBOX/etc/mplayer/menu_%s.conf", langs[l].shortname);
   CopyFile(buf, buf2, FALSE);
-  sprintf(buf, "language/lang.conf");  
-  sprintf(buf2, "iso/GEEXBOX/etc/lang.conf");  
+  sprintf(buf, "language/lang.conf");
+  sprintf(buf2, "iso/GEEXBOX/etc/lang.conf");
   CopyFile(buf, buf2, FALSE);
 
   fp = fopen ("iso/GEEXBOX/etc/subfont", "wb");
@@ -347,7 +347,7 @@ void GenerateISO (HWND hwnd) {
   fprintf (fp, "GATEWAY=\"%s\"\n", ipga);
   fprintf (fp, "SMB_USER=\"%s\"\n", smbus);
   fprintf (fp, "SMB_PWD=\"%s\"\n", smbpw);
-  fclose (fp);  
+  fclose (fp);
 
   sprintf(buf, "lirc/lircrc_%s", remote);
   CopyFile(buf, "iso/GEEXBOX/etc/lircrc", FALSE);
@@ -360,7 +360,7 @@ void GenerateISO (HWND hwnd) {
 
   DeleteFile("iso/GEEXBOX/usr/share/mplayer/help.txt");
   DeleteFile("iso/GEEXBOX/etc/mplayer/menu.conf");
-  
+
   MultipleFileDelete("*", buf2, FALSE); /* remove subfont directory */
   RemoveDirectory(buf2);
   if (buf3[0] != '\0') { /* remove menufont directory */
@@ -443,7 +443,7 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
         GetDlgItemText(hwnd, REMOTE_LIST, remote, 50);
         break;
       }
-      break;   
+      break;
     case RECEIVER_LIST:
       switch (HIWORD(wParam)) {
       case LBN_SELCHANGE:
@@ -457,7 +457,7 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
         GetDlgItemText(hwnd, NVIDIA_LIST, nvidia, 50);
         break;
       }
-      break; 
+      break;
     case AUDIO_LIST:
       switch (HIWORD(wParam)) {
       case LBN_SELCHANGE:

@@ -55,7 +55,7 @@ static int get_sh_value(const char *var, char *dst)
 static void add_language(const char *name, int loc)
 {
 	char buf[50];
-	
+
 	strcpy(langs[loc].shortname, name);
 
 	sprintf(buf, "%s_name", name);
@@ -66,7 +66,7 @@ static void add_language(const char *name, int loc)
 
 	sprintf(buf, "%s_bitmapmenu", name);
 	if (!get_sh_value(buf, buf))
-	        langs[loc].bitmapmenu = !strcasecmp(buf, "yes") || !strcasecmp(buf, "true") 
+	        langs[loc].bitmapmenu = !strcasecmp(buf, "yes") || !strcasecmp(buf, "true")
 				     || !strcasecmp(buf, "1");
 }
 
@@ -77,20 +77,20 @@ static void add_font(const char *name, int loc)
 
 static int cmp_languages(const void *a, const void *b)
 {
-	return strcmp(((const struct langinfo*)a)->name, 
+	return strcmp(((const struct langinfo*)a)->name,
 		      ((const struct langinfo*)b)->name);
 }
 
 static int cmp_fonts(const void *a, const void *b)
 {
-	return strcmp(((const struct fontinfo*)a)->font, 
+	return strcmp(((const struct fontinfo*)a)->font,
 		      ((const struct fontinfo*)b)->font);
 }
 
 int find_language(const char *name)
 {
 	int i;
-	
+
 	for (i = 0; i < langcount; i++)
 	{
 		if (!strcmp(name, langs[i].name))
