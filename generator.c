@@ -352,7 +352,7 @@ void GenerateISO (HWND hwnd) {
   fprintf (fp, "HOST=\"%s\"\n", ipge);
   fprintf (fp, "GATEWAY=\"%s\"\n", ipga);
   fprintf (fp, "SMB_USER=\"%s\"\n", smbus);
-  fprintf (fp, "SMB_PWD=\"%s\"", smbpw);
+  fprintf (fp, "SMB_PWD=\"%s\"\n", smbpw);
   fclose (fp);  
 
   sprintf(buf, "lirc/lircrc_%s", remote);
