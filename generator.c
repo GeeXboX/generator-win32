@@ -25,9 +25,9 @@
 #define SUBFONT_AS_LANGUAGE "(Same as the language)"
 #define DOCS_PATH "DOCS/README_"
 
-geexbox_options_t *opts;
+static geexbox_options_t *opts;
 
-void
+static void
 associate (void)
 {
   if (!strcmp (opts->lang, ""))
@@ -48,7 +48,7 @@ associate (void)
     strcpy (opts->net->wifi->mode, "managed");
 }
 
-char *
+static char *
 GetVersionNumber (void)
 {
   FILE *fd;
@@ -63,7 +63,7 @@ GetVersionNumber (void)
   return version;
 }
 
-void
+static void
 ListSubFonts (HWND hwnd)
 {
   int i;
@@ -76,7 +76,7 @@ ListSubFonts (HWND hwnd)
                       CB_ADDSTRING, 0, (LPARAM) SUBFONT_AS_LANGUAGE);
 }
 
-void
+static void
 ListLanguages (HWND hwnd)
 {
   char *name;
@@ -90,7 +90,7 @@ ListLanguages (HWND hwnd)
     }
 }
 
-void
+static void
 ListRemotes (HWND hwnd)
 {
   WIN32_FIND_DATA FileData;
@@ -113,7 +113,7 @@ ListRemotes (HWND hwnd)
   FindClose (hSearch);
 }
 
-void
+static void
 ListReceivers (HWND hwnd)
 {
   WIN32_FIND_DATA FileData;
@@ -138,7 +138,7 @@ ListReceivers (HWND hwnd)
   FindClose (hSearch);
 }
 
-BOOL
+static BOOL
 FileExists (char *file)
 {
   WIN32_FIND_DATA FileData;
@@ -154,7 +154,7 @@ FileExists (char *file)
     return FALSE;
 }
 
-void
+static void
 MultipleFileDelete (char *token, char *src, BOOL recursive)
 {
   WIN32_FIND_DATA FileData;
@@ -202,7 +202,7 @@ MultipleFileDelete (char *token, char *src, BOOL recursive)
   FindClose (hSearch);
 }
 
-void
+static void
 MultipleFileCopy (char *token, char *src,
                   char *dest, char *exclude, BOOL recursive)
 {
@@ -255,7 +255,7 @@ MultipleFileCopy (char *token, char *src,
   FindClose (hSearch);
 }
 
-void
+static void
 Execute (char *cmdline)
 {
   STARTUPINFO si;
@@ -268,7 +268,7 @@ Execute (char *cmdline)
   CloseHandle (pi.hThread);
 }
 
-void
+static void
 ExecuteToFile (char *cmdline, char *file)
 {
   HANDLE saveStdOutPut, output;
@@ -289,7 +289,7 @@ ExecuteToFile (char *cmdline, char *file)
   CloseHandle (output);
 }
 
-void
+static void
 GenerateISO (HWND hwnd)
 {
   char buf[128], buf2[128], buf3[128], version[128];
@@ -462,7 +462,7 @@ GenerateISO (HWND hwnd)
   MessageBox (hwnd, buf, "DONE", MB_OK);
 }
 
-BOOL CALLBACK
+static BOOL CALLBACK
 DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
   char *caption;
