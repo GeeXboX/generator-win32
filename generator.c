@@ -2,12 +2,16 @@
 #include <stdio.h>
 #include "resource.h" 
 
-char lang[50] = "", remote[50] = "", receiver[50] = "";
+#define SUBFONT_AS_LANGUAGE "(Same as the language)"
+
+char lang[50] = "", subfont[50] = "", remote[50] = "", receiver[50] = "";
 char *path = "DOCS/README_";
 
 void associate() {
   if (!strcmp(lang, ""))
     strcpy(lang, "en");
+  if (!strcmp(subfont, ""))
+    strcpy(subfont, SUBFONT_AS_LANGUAGE);
   if (!strcmp(remote, ""))
     strcpy(remote, "pctv");
   if (!strcmp(receiver, ""))
@@ -27,6 +31,21 @@ char *GetVersionNumber () {
   return version;
 }
 
+void ListSubFonts (HWND hwnd) {
+  char *list[] = { 
+    SUBFONT_AS_LANGUAGE,
+    "iso-8859-1",
+    "iso-8859-2",
+    "iso-8859-8",
+    "cp1251",
+    "koi8r"
+  };
+  int i;
+
+  for (i = 0; i < sizeof(list)/sizeof(list[0]); i++)
+    SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_ADDSTRING, 0, (LPARAM)list[i]);    
+}
+
 void ListLanguages (HWND hwnd) {
   WIN32_FIND_DATA FileData;
   HANDLE hSearch;
@@ -44,6 +63,7 @@ void ListLanguages (HWND hwnd) {
     else
       buf[3] = '\0';
     SendDlgItemMessage(hwnd, LANG_LIST, CB_ADDSTRING, 0, (LPARAM)buf);
+    SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_ADDSTRING, 0, (LPARAM)buf);
     if (!FindNextFile(hSearch, &FileData))
       if (GetLastError() == ERROR_NO_MORE_FILES)
         finished = TRUE;
@@ -197,7 +217,8 @@ void ExecuteToFile (char *cmdline, char *file) {
 }
 
 void GenerateISO () {
-  char buf[128], buf2[128], version[128], font[128];
+  char buf[128], buf2[128], buf3[128], version[128];
+  char *menu_font, *sub_font;
   FILE *fp;
 
   printf("*** Generating ISO image ***\n");
@@ -206,7 +227,7 @@ void GenerateISO () {
   printf("Langage : %s\n", lang);
 
   fp = fopen ("iso/GEEXBOX/etc/lang", "w");
-  fprintf (fp, "%s", lang);
+  fprintf (fp, "%s\n", lang);
   fclose (fp);
 
   CreateDirectory("ziso", NULL);
@@ -217,20 +238,50 @@ void GenerateISO () {
   sprintf(buf2, "iso/GEEXBOX/etc/mplayer/menu_%s.conf", lang);  
   CopyFile(buf, buf2, FALSE);
 
-  if (!strcmp(lang, "cz") || !strcmp(lang, "hu") || !strcmp(lang, "pl")
-      || !strcmp(lang, "sk"))
-    strcpy(font, "iso-8859-2");
+  /* Languages who require `bitmap font` for menus */
+  if (!strcmp(lang, "hu"))
+    menu_font = "iso-8859-2";
+  else if (!strcmp(lang, "he"))
+    menu_font = "iso-8859-8";
   else if (!strcmp(lang, "bg"))
-    strcpy(font, "cp1251");
+    menu_font = "cp1251";
   else if (!strcmp(lang, "ru"))
-    strcpy(font, "koi8r");
+    menu_font = "koi8r";
   else
-    strcpy(font, "iso-8859-1");
+    menu_font = "";
 
-  sprintf (buf, "font/%s/", font);
-  sprintf (buf2, "iso/GEEXBOX/usr/share/mplayer/font/%s/", font);
+  sub_font = strcmp(subfont, SUBFONT_AS_LANGUAGE) ? subfont : lang;
+
+  if (!strcmp(sub_font, "iso-8859-2") || !strcmp(sub_font, "cz") 
+      || !strcmp(sub_font, "hu") || !strcmp(sub_font, "hu") || !strcmp(sub_font, "pl")
+      || !strcmp(sub_font, "ro") || !strcmp(sub_font, "sk"))
+    sub_font = "iso-8859-2";
+  else if (!strcmp(sub_font, "iso-8859-8") || !strcmp(sub_font, "he"))
+    sub_font = "iso-8859-8";
+  else if (!strcmp(sub_font, "cp1251") || !strcmp(sub_font, "bg"))
+    sub_font = "cp1251";
+  else if (!strcmp(sub_font, "koi8r") || !strcmp(sub_font, "ru"))
+    sub_font = "koi8r";
+  else 
+    sub_font = "iso-8859-1";
+
+  fp = fopen ("iso/GEEXBOX/etc/subfont", "w");
+  fprintf (fp, "%s\n", sub_font);
+  fclose (fp);
+
+  sprintf (buf, "font/%s/", sub_font);
+  sprintf (buf2, "iso/GEEXBOX/usr/share/mplayer/font/%s/", sub_font);
   CreateDirectory(buf2, NULL);
   MultipleFileCopy("*", buf, buf2, "", FALSE);
+
+  if (strcmp(menu_font, "") && strcmp(menu_font, sub_font)) {
+    sprintf (buf, "font/%s/", menu_font);
+    sprintf (buf3, "iso/GEEXBOX/usr/share/mplayer/font/%s/", menu_font);
+    CreateDirectory(buf3, NULL);
+    MultipleFileCopy("*", buf, buf3, "", FALSE);
+  } else {
+    buf3[0] = '\0';
+  }
 
   sprintf(buf, "lirc/lircrc_%s", remote);
   CopyFile(buf, "iso/GEEXBOX/etc/lircrc", FALSE);
@@ -243,9 +294,13 @@ void GenerateISO () {
 
   DeleteFile("iso/GEEXBOX/usr/share/mplayer/help.txt");
   DeleteFile("iso/GEEXBOX/etc/mplayer/menu.conf");
-  MultipleFileDelete("*", buf2, FALSE);
+  
+  MultipleFileDelete("*", buf2, FALSE); /* remove subfont directory */
   RemoveDirectory(buf2);
-  DeleteFile("iso/GEEXBOX/usr/share/mplayer/font/font.desc");
+  if (buf3[0] != '\0') { /* remove menufont directory */
+    MultipleFileDelete("*", buf3, FALSE);
+    RemoveDirectory(buf3);
+  }
   MultipleFileDelete("lirc*", "iso/GEEXBOX/etc/", FALSE);
 
   CreateDirectory("ziso/GEEXBOX/boot", NULL);
@@ -269,8 +324,10 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
   switch (Message) {
 
   case WM_INITDIALOG:
+    ListSubFonts(hwnd);
     ListLanguages(hwnd);
     SendDlgItemMessage(hwnd, LANG_LIST, CB_SELECTSTRING, 0, (LPARAM)"en");
+    SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_SELECTSTRING, 0, (LPARAM)SUBFONT_AS_LANGUAGE);
     ListRemotes(hwnd);
     SendDlgItemMessage(hwnd, REMOTE_LIST, CB_SELECTSTRING, 0, (LPARAM)"pctv");
     ListReceivers(hwnd);
@@ -314,6 +371,13 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
       switch (HIWORD(wParam)) {
       case LBN_SELCHANGE:
         GetDlgItemText(hwnd, LANG_LIST, lang, 50);
+        break;
+      }
+      break;
+    case SUBFONT_LIST:
+      switch (HIWORD(wParam)) {
+      case LBN_SELCHANGE:
+        GetDlgItemText(hwnd, SUBFONT_LIST, subfont, 50);
         break;
       }
       break;
