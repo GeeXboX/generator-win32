@@ -325,15 +325,9 @@ void GenerateISO (HWND hwnd) {
   } else {
     buf3[0] = '\0';
   }
-  if (!strcmp(audio, "spdif")) {
-    fp = fopen ("iso/GEEXBOX/etc/audio", "w");
-    fprintf (fp, "SPDIF=yes");
-    fclose (fp);
-  } else {
-    fp = fopen ("iso/GEEXBOX/etc/audio", "w");
-    fprintf (fp, "SPDIF=no");
-    fclose(fp);
-  }
+  fp = fopen ("iso/GEEXBOX/etc/audio", "w");
+  fprintf (fp, "SPDIF=%s\n", !strcmp(audio, "spdif") ? "yes" : "no");
+  fclose (fp);
   if (!strcmp(nvidia, "no")) {
     fp = fopen ("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix", "a");
     fclose (fp);
