@@ -89,11 +89,17 @@ display_options_to_console (HWND hwnd, geexbox_options_t *opts)
           IsDlgButtonChecked (hwnd, FTP_SERVER) ? "yes" : "no");
 }
 
-void
-write_options_to_disk (HWND hwnd, geexbox_options_t *opts)
+int
+write_options_to_disk (HWND hwnd, geexbox_options_t *opts,
+                       char *subfont_dir, char *menufont_dir)
 {
   FILE *fp;
   char buf[128];
+  int res;
+
+  res = write_lang_to_disk (hwnd, opts, subfont_dir, menufont_dir);
+  if (res < 0)
+    return res;
 
   fp = fopen ("iso/GEEXBOX/etc/audio", "wb");
   fprintf (fp, "SPDIF=%s\n", !strcmp (opts->audio, "spdif") ? "yes" : "no");
@@ -133,4 +139,6 @@ write_options_to_disk (HWND hwnd, geexbox_options_t *opts)
   CopyFile (buf, "iso/GEEXBOX/etc/lircd", FALSE);
   sprintf (buf, "lirc/lircd_%s.conf", opts->remote);
   CopyFile (buf, "iso/GEEXBOX/etc/lircd.conf", FALSE);
+
+  return res;
 }

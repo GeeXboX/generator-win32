@@ -154,102 +154,26 @@ ExecuteToFile (char *cmdline, char *file)
 static void
 GenerateISO (HWND hwnd)
 {
-  char buf[128], buf2[128], buf3[128], version[128];
-  char *menu_font, *sub_font, *filelist[2];
-  int i, l, f;
-  FILE *fp;
+  char subfont_dir[128], menufont_dir[128], version[128];
+  int l;
 
   printf ("*** Generating ISO image ***\n");
   display_options_to_console (hwnd, opts);
-
-  l = find_language (opts->lang);
-
-  menu_font = langs[l].bitmapmenu ? langs[l].font : "";
-  sub_font = strcmp (opts->subfont, SUBFONT_AS_LANGUAGE)
-    ? opts->subfont : opts->lang;
-
-  if ((f = find_language (sub_font)) >= 0)
-    sub_font = langs[f].font;
-
-  sprintf (buf, "font/%s/font.desc", sub_font);
-  filelist[0] = buf;
-  sprintf (buf2, "font/%s/font.desc", menu_font);
-  filelist[1] = *menu_font ? buf2 : NULL;
-
-  for (i = 0; i < 2; i++)
-    if (filelist[i] && FileExists (filelist[i]) == FALSE)
-      {
-        sprintf (buf3, "%s font is missing.\nPlease visit the README - " \
-                 "EXTRA SUBTITLE FONTS section", sub_font);
-        printf ("*** %s ***\n", buf3);
-        MessageBox (hwnd, buf3, "ERROR", MB_OK | MB_ICONERROR);
-        return;
-      }
-
-  sprintf (buf, "language/help_%s.txt", langs[l].shortname);
-  filelist[0] = buf;
-  sprintf (buf2, "language/menu_%s.conf", langs[l].shortname);
-  filelist[1] = buf2;
-
-  for (i = 0; i < 2; i++)
-    if (filelist[i] && FileExists(filelist[i]) == FALSE)
-      {
-        sprintf (buf3, "%s language file is missing", filelist[i]);
-        printf ("*** %s ***\n", buf3);
-        MessageBox (hwnd, buf3, "ERROR", MB_OK | MB_ICONERROR);
-        return;
-      }
-
-  fp = fopen ("iso/GEEXBOX/etc/lang", "wb");
-  fprintf (fp, "%s", langs[l].shortname);
-  fclose (fp);
-
-  CreateDirectory ("ziso", NULL);
-  sprintf (buf, "language/help_%s.txt", langs[l].shortname);
-  sprintf (buf2,
-           "iso/GEEXBOX/usr/share/mplayer/help_%s.txt", langs[l].shortname);
-  CopyFile (buf, buf2, FALSE);
-
-  sprintf (buf, "language/menu_%s.conf", langs[l].shortname);
-  sprintf (buf2, "iso/GEEXBOX/etc/mplayer/menu_%s.conf", langs[l].shortname);
-  CopyFile (buf, buf2, FALSE);
-
-  sprintf (buf, "language/lang.conf");
-  sprintf (buf2, "iso/GEEXBOX/etc/lang.conf");
-  CopyFile (buf, buf2, FALSE);
-
-  fp = fopen ("iso/GEEXBOX/etc/subfont", "wb");
-  fprintf (fp, "%s", sub_font);
-  fclose (fp);
-
-  sprintf (buf, "font/%s/", sub_font);
-  sprintf (buf2, "iso/GEEXBOX/usr/share/mplayer/font/%s/", sub_font);
-  CreateDirectory (buf2, NULL);
-  MultipleFileCopy ("*", buf, buf2, "", FALSE);
-
-  if (strcmp (menu_font, "") && strcmp (menu_font, sub_font))
-    {
-      sprintf (buf, "font/%s/", menu_font);
-      sprintf (buf3, "iso/GEEXBOX/usr/share/mplayer/font/%s/", menu_font);
-      CreateDirectory (buf3, NULL);
-      MultipleFileCopy ("*", buf, buf3, "", FALSE);
-    }
-  else
-    buf3[0] = '\0';
-
-  write_options_to_disk (hwnd, opts);
+  l = write_options_to_disk (hwnd, opts, subfont_dir, menufont_dir);
+  if (l < 0)
+    return;
 
   Execute ("win32/mkzftree.exe iso/GEEXBOX ziso/GEEXBOX");
 
   DeleteFile ("iso/GEEXBOX/usr/share/mplayer/help.txt");
   DeleteFile ("iso/GEEXBOX/etc/mplayer/menu.conf");
 
-  MultipleFileDelete ("*", buf2, FALSE); /* remove subfont directory */
-  RemoveDirectory (buf2);
-  if (buf3[0] != '\0')
+  MultipleFileDelete ("*", subfont_dir, FALSE); /* remove subfont directory */
+  RemoveDirectory (subfont_dir);
+  if (menufont_dir[0] != '\0')
     { /* remove menufont directory */
-      MultipleFileDelete ("*", buf3, FALSE);
-      RemoveDirectory (buf3);
+      MultipleFileDelete ("*", menufont_dir, FALSE);
+      RemoveDirectory (menufont_dir);
     }
   MultipleFileDelete ("lirc*", "iso/GEEXBOX/etc/", FALSE);
 
@@ -264,9 +188,8 @@ GenerateISO (HWND hwnd)
   MultipleFileDelete ("*", "ziso/", TRUE);
   RemoveDirectory ("ziso");
 
-  sprintf (buf, "Your customized GeeXboX ISO is ready");
-  printf ("*** %s ***\n", buf);
-  MessageBox (hwnd, buf, "DONE", MB_OK);
+  printf ("*** Your customized GeeXboX ISO is ready ***\n");
+  MessageBox (hwnd, "Your customized GeeXboX ISO is ready", "DONE", MB_OK);
 }
 
 static BOOL CALLBACK

@@ -18,6 +18,8 @@
 #ifndef LANGCONF_H_
 #define LANGCONF_H_
 
+#include "options.h"
+
 #define PATH_LANGCONF "language/lang.conf"
 #define SUBFONT_AS_LANGUAGE "(Same as the language)"
 
@@ -42,7 +44,7 @@ extern struct fontinfo *fonts;
 
 void free_langconf (void);
 void init_langconf (void);
-
-int find_language (const char *name);
+int write_lang_to_disk (HWND hwnd, geexbox_options_t *opts,
+                        char *subfont_dir, char *menufont_dir);
 
 #endif
