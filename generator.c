@@ -3,31 +3,32 @@
 
 #include "resource.h"
 #include "langconf.h"
+#include "options.h"
 
 #define SUBFONT_AS_LANGUAGE "(Same as the language)"
+#define DOCS_PATH "DOCS/README_"
 
-char lang[50] = "", subfont[50] = "", remote[50] = "", receiver[50] = "", nvidia[50] = "", audio[50] = "", tempimg[50] = "", phy[50] = "", wimo[50] = "", wiwe[50] = "", wies[50] = "", ipge[50] = "", ipga[50] = "", ipdns[50] = "", smbus[50] = "", smbpw[50] = "";
-char *path = "DOCS/README_";
+geexbox_options_t *opts;
 
 void
 associate (void)
 {
-  if (!strcmp (lang, ""))
-    strcpy (lang, deflang->name);
-  if (!strcmp (subfont, ""))
-    strcpy (subfont, SUBFONT_AS_LANGUAGE);
-  if (!strcmp (remote, ""))
-    strcpy (remote, "atiusb");
-  if (!strcmp (receiver, ""))
-    strcpy (receiver, "atiusb");
-  if (!strcmp (nvidia, ""))
-    strcpy (nvidia, "no");
-  if (!strcmp (audio, ""))
-    strcpy (audio, "analog");
-  if (!strcmp (phy, ""))
-    strcpy (phy, "auto");
-  if (!strcmp (wimo, ""))
-    strcpy (wimo, "managed");
+  if (!strcmp (opts->lang, ""))
+    strcpy (opts->lang, deflang->name);
+  if (!strcmp (opts->subfont, ""))
+    strcpy (opts->subfont, SUBFONT_AS_LANGUAGE);
+  if (!strcmp (opts->remote, ""))
+    strcpy (opts->remote, "atiusb");
+  if (!strcmp (opts->receiver, ""))
+    strcpy (opts->receiver, "atiusb");
+  if (!strcmp (opts->vidix, ""))
+    strcpy (opts->vidix, "no");
+  if (!strcmp (opts->audio, ""))
+    strcpy (opts->audio, "analog");
+  if (!strcmp (opts->net->type, ""))
+    strcpy (opts->net->type, "auto");
+  if (!strcmp (opts->net->wifi->mode, ""))
+    strcpy (opts->net->wifi->mode, "managed");
 }
 
 char *
@@ -280,30 +281,31 @@ GenerateISO (HWND hwnd)
   FILE *fp;
 
   printf ("*** Generating ISO image ***\n");
-  printf ("Remote : %s\n", remote);
-  printf ("Receiver : %s\n", receiver);
-  printf ("Language : %s\n", lang);
-  printf ("Subfont : %s\n", subfont);
-  printf ("NVidia vidix : %s\n", nvidia);
-  printf ("Audio output : %s\n", audio);
-  printf ("Image tempo : %ss\n", tempimg);
-  printf ("Network type : %s\n", phy);
-  printf ("Wifi mode : %s\n", wimo);
-  printf ("Wifi WEP key : %s\n", wiwe);
-  printf ("Geexbox IP : %s\n", ipge);
-  printf ("Gateway IP : %s\n", ipga);
-  printf ("DNS Server IP : %s\n", ipdns);
-  printf ("User login : %s\n", smbus);
-  printf ("User Password : %s\n", smbpw);
+  printf ("Remote : %s\n", opts->remote);
+  printf ("Receiver : %s\n", opts->receiver);
+  printf ("Language : %s\n", opts->lang);
+  printf ("Subfont : %s\n", opts->subfont);
+  printf ("NVidia vidix : %s\n", opts->vidix);
+  printf ("Audio output : %s\n", opts->audio);
+  printf ("Image tempo : %ss\n", opts->image_tempo);
+  printf ("Network type : %s\n", opts->net->type);
+  printf ("Wifi mode : %s\n", opts->net->wifi->mode);
+  printf ("Wifi WEP key : %s\n", opts->net->wifi->wep);
+  printf ("Geexbox IP : %s\n", opts->net->host_ip);
+  printf ("Gateway IP : %s\n", opts->net->gateway_ip);
+  printf ("DNS Server IP : %s\n", opts->net->dns);
+  printf ("User login : %s\n", opts->net->smb->username);
+  printf ("User Password : %s\n", opts->net->smb->password);
   printf ("Enable Telnet Server : %s\n",
           IsDlgButtonChecked (hwnd, TELNET_SERVER) ? "yes" : "no");
   printf ("Enable FTP Server : %s\n",
           IsDlgButtonChecked (hwnd, FTP_SERVER) ? "yes" : "no");
 
-  l = find_language (lang);
+  l = find_language (opts->lang);
 
   menu_font = langs[l].bitmapmenu ? langs[l].font : "";
-  sub_font = strcmp (subfont, SUBFONT_AS_LANGUAGE) ? subfont : lang;
+  sub_font = strcmp (opts->subfont, SUBFONT_AS_LANGUAGE)
+    ? opts->subfont : opts->lang;
 
   if ((f = find_language (sub_font)) >= 0)
     sub_font = langs[f].font;
@@ -375,9 +377,9 @@ GenerateISO (HWND hwnd)
     buf3[0] = '\0';
 
   fp = fopen ("iso/GEEXBOX/etc/audio", "wb");
-  fprintf (fp, "SPDIF=%s\n", !strcmp (audio, "spdif") ? "yes" : "no");
+  fprintf (fp, "SPDIF=%s\n", !strcmp (opts->audio, "spdif") ? "yes" : "no");
   fclose (fp);
-  if (!strcmp (nvidia, "no"))
+  if (!strcmp (opts->vidix, "no"))
     {
       fp = fopen ("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix", "ab");
       fclose (fp);
@@ -386,19 +388,19 @@ GenerateISO (HWND hwnd)
     DeleteFile ("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix");
 
   fp = fopen ("iso/GEEXBOX/etc/view_img_timeout", "wb");
-  fprintf (fp, "%s", tempimg);
+  fprintf (fp, "%s", opts->image_tempo);
   fclose (fp);
 
   fp = fopen ("iso/GEEXBOX/etc/network", "wb");
-  fprintf (fp, "PHY_TYPE=\"%s\"\n", phy);
-  fprintf (fp, "WIFI_MODE=\"%s\"\n", wimo);
-  fprintf (fp, "WIFI_WEP=\"%s\"\n", wiwe);
-  fprintf (fp, "WIFI_ESSID=\"%s\"\n", wies);
-  fprintf (fp, "HOST=\"%s\"\n", ipge);
-  fprintf (fp, "GATEWAY=\"%s\"\n", ipga);
-  fprintf (fp, "DNS_SERVER=\"%s\"\n", ipdns);
-  fprintf (fp, "SMB_USER=\"%s\"\n", smbus);
-  fprintf (fp, "SMB_PWD=\"%s\"\n", smbpw);
+  fprintf (fp, "PHY_TYPE=\"%s\"\n", opts->net->type);
+  fprintf (fp, "WIFI_MODE=\"%s\"\n", opts->net->wifi->mode);
+  fprintf (fp, "WIFI_WEP=\"%s\"\n", opts->net->wifi->wep);
+  fprintf (fp, "WIFI_ESSID=\"%s\"\n", opts->net->wifi->essid);
+  fprintf (fp, "HOST=\"%s\"\n", opts->net->host_ip);
+  fprintf (fp, "GATEWAY=\"%s\"\n", opts->net->gateway_ip);
+  fprintf (fp, "DNS_SERVER=\"%s\"\n", opts->net->dns);
+  fprintf (fp, "SMB_USER=\"%s\"\n", opts->net->smb->username);
+  fprintf (fp, "SMB_PWD=\"%s\"\n", opts->net->smb->password);
   fprintf (fp, "TELNET_SERVER=\"%s\"\n",
            IsDlgButtonChecked (hwnd, TELNET_SERVER) ? "yes" : "no");
   fprintf (fp, "FTP_SERVER=\"%s\"\n",
@@ -406,11 +408,11 @@ GenerateISO (HWND hwnd)
 
   fclose (fp);
 
-  sprintf (buf, "lirc/lircrc_%s", remote);
+  sprintf (buf, "lirc/lircrc_%s", opts->remote);
   CopyFile (buf, "iso/GEEXBOX/etc/lircrc", FALSE);
-  sprintf (buf, "lirc/lircd_%s", receiver);
+  sprintf (buf, "lirc/lircd_%s", opts->receiver);
   CopyFile (buf, "iso/GEEXBOX/etc/lircd", FALSE);
-  sprintf (buf, "lirc/lircd_%s.conf", remote);
+  sprintf (buf, "lirc/lircd_%s.conf", opts->remote);
   CopyFile (buf, "iso/GEEXBOX/etc/lircd.conf", FALSE);
 
   Execute ("win32/mkzftree.exe iso/GEEXBOX ziso/GEEXBOX");
@@ -497,10 +499,9 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           {
             char load[30], tmp[30];
             associate ();
-            sprintf (tmp, "%s%s.txt", path, lang);
-            if (GetFileAttributes (tmp) == -1)
-              // File doesn't exist.
-              sprintf (tmp, "%sen.txt", path);
+            sprintf (tmp, "%s%s.txt", DOCS_PATH, opts->lang);
+            if (GetFileAttributes (tmp) == -1) /* File doesn't exist. */
+              sprintf (tmp, "%sen.txt", DOCS_PATH);
             sprintf (load, "notepad %s", tmp);
             WinExec (load, 1);
             break;
@@ -509,7 +510,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case LBN_SELCHANGE:
-              GetDlgItemText (hwnd, REMOTE_LIST, remote, 50);
+              GetDlgItemText (hwnd, REMOTE_LIST, opts->remote, 50);
               break;
             }
           break;
@@ -517,7 +518,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case LBN_SELCHANGE:
-              GetDlgItemText (hwnd, RECEIVER_LIST, receiver, 50);
+              GetDlgItemText (hwnd, RECEIVER_LIST, opts->receiver, 50);
               break;
             }
           break;
@@ -525,7 +526,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case LBN_SELCHANGE:
-              GetDlgItemText(hwnd, NVIDIA_LIST, nvidia, 50);
+              GetDlgItemText(hwnd, NVIDIA_LIST, opts->vidix, 50);
               break;
             }
           break;
@@ -533,7 +534,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case LBN_SELCHANGE:
-              GetDlgItemText (hwnd, AUDIO_LIST, audio, 50);
+              GetDlgItemText (hwnd, AUDIO_LIST, opts->audio, 50);
               break;
             }
           break;
@@ -541,7 +542,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case LBN_SELCHANGE:
-              GetDlgItemText (hwnd, PHY_LIST, phy, 50);
+              GetDlgItemText (hwnd, PHY_LIST, opts->net->type, 50);
               break;
             }
           break;
@@ -549,7 +550,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case LBN_SELCHANGE:
-              GetDlgItemText (hwnd, WIMO_LIST, wimo, 50);
+              GetDlgItemText (hwnd, WIMO_LIST, opts->net->wifi->mode, 50);
               break;
             }
           break;
@@ -557,7 +558,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case EN_CHANGE:
-              GetDlgItemText (hwnd, TEMPOIMG, tempimg, 50);
+              GetDlgItemText (hwnd, TEMPOIMG, opts->image_tempo, 50);
               break;
             }
           break;
@@ -565,7 +566,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case EN_CHANGE:
-              GetDlgItemText (hwnd, WIFIWEP, wiwe, 50);
+              GetDlgItemText (hwnd, WIFIWEP, opts->net->wifi->wep, 50);
               break;
             }
           break;
@@ -573,7 +574,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case EN_CHANGE:
-              GetDlgItemText (hwnd, WIFIESSID, wies, 50);
+              GetDlgItemText (hwnd, WIFIESSID, opts->net->wifi->essid, 50);
               break;
             }
           break;
@@ -581,7 +582,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case EN_CHANGE:
-              GetDlgItemText (hwnd, IPGEEX, ipge, 50);
+              GetDlgItemText (hwnd, IPGEEX, opts->net->host_ip, 50);
               break;
             }
           break;
@@ -589,7 +590,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case EN_CHANGE:
-              GetDlgItemText (hwnd, IPGAT, ipga, 50);
+              GetDlgItemText (hwnd, IPGAT, opts->net->gateway_ip, 50);
               break;
             }
           break;
@@ -597,7 +598,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case EN_CHANGE:
-              GetDlgItemText (hwnd, IPDNS, ipdns, 50);
+              GetDlgItemText (hwnd, IPDNS, opts->net->dns, 50);
               break;
             }
           break;
@@ -605,7 +606,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case EN_CHANGE:
-              GetDlgItemText (hwnd, SMBUSER, smbus, 50);
+              GetDlgItemText (hwnd, SMBUSER, opts->net->smb->username, 50);
               break;
             }
           break;
@@ -613,7 +614,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case EN_CHANGE:
-              GetDlgItemText (hwnd, SMBPWD, smbpw, 50);
+              GetDlgItemText (hwnd, SMBPWD, opts->net->smb->password, 50);
               break;
             }
           break;
@@ -621,7 +622,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case LBN_SELCHANGE:
-              GetDlgItemText (hwnd, LANG_LIST, lang, 50);
+              GetDlgItemText (hwnd, LANG_LIST, opts->lang, 50);
               break;
             }
           break;
@@ -629,7 +630,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
           switch (HIWORD (wParam))
             {
             case LBN_SELCHANGE:
-              GetDlgItemText (hwnd, SUBFONT_LIST, subfont, 50);
+              GetDlgItemText (hwnd, SUBFONT_LIST, opts->subfont, 50);
               break;
             }
           break;
@@ -659,6 +660,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
       break;
     case WM_CLOSE:
       free_langconf ();
+      free_options (opts);
       EndDialog (hwnd, 0);
       break;
     default:
@@ -672,5 +674,6 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
          LPSTR lpCmdLine, int nCmdShow)
 {
   init_langconf ();
+  opts = init_options ();
   return DialogBox (hInstance, MAKEINTRESOURCE (IDD_MAIN), NULL, DlgProc);
 }

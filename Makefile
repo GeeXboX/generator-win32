@@ -12,7 +12,7 @@ APP      = generator
 EXEFILE  = $(APP).exe
 OBJFILE  = $(APP).o
 COFFFILE = $(APP).coff
-SRCFILE  = $(APP).c langconf.c
+SRCFILE  = $(APP).c langconf.c options.c
 RESFILE  = $(APP).rc
 
 CFLAGS	 = -Wall -Os
