@@ -36,10 +36,10 @@ char *GetVersionNumber () {
 void ListSubFonts (HWND hwnd) {
   int i;
 
-  SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_ADDSTRING, 0, (LPARAM)SUBFONT_AS_LANGUAGE);
-
   for (i = 0; i < fontcount; i++)
     SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_ADDSTRING, 0, (LPARAM)fonts[i].font);
+
+  SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_ADDSTRING, 0, (LPARAM)SUBFONT_AS_LANGUAGE);
 }
 
 void ListLanguages (HWND hwnd) {

@@ -75,6 +75,18 @@ static void add_font(const char *name, int loc)
 	strcpy(fonts[loc].font, name);
 }
 
+static int cmp_languages(const void *a, const void *b)
+{
+	return strcmp(((const struct langinfo*)a)->name, 
+		      ((const struct langinfo*)b)->name);
+}
+
+static int cmp_fonts(const void *a, const void *b)
+{
+	return strcmp(((const struct fontinfo*)a)->font, 
+		      ((const struct fontinfo*)b)->font);
+}
+
 int find_language(const char *name)
 {
 	int i;
@@ -120,6 +132,8 @@ void init_langconf(void)
 	for (tmp = buf, i = 0; i < langcount && *tmp; tmp += strlen(tmp)+1, i++)
 		add_language(tmp, i);
 
+	qsort(langs, langcount, sizeof(struct langinfo), cmp_languages);
+
 	get_sh_value("DEFAULT_LANGUAGE", buf);
 	for (i = 0; i < langcount; i++)
 		if (!strcmp(langs[i].shortname, buf))
@@ -149,6 +163,8 @@ void init_langconf(void)
 	{
 		add_font(tmp, i);
 	}
+
+	qsort(fonts, fontcount, sizeof(struct fontinfo), cmp_fonts);
 
 	fclose(langfile);
 	langfile = NULL;
