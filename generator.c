@@ -484,32 +484,53 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
       }
       break;
     case TEMPOIMG:
+      switch (HIWORD(wParam)) {
+      case EN_CHANGE:
         GetDlgItemText(hwnd, TEMPOIMG, tempimg, 50);
         break;
+      }
       break;
     case WIFIWEP:
+      switch (HIWORD(wParam)) {
+      case EN_CHANGE:
         GetDlgItemText(hwnd, WIFIWEP, wiwe, 50);
         break;
+      }
       break;
     case WIFIESSID:
+      switch (HIWORD(wParam)) {
+      case EN_CHANGE:
         GetDlgItemText(hwnd, WIFIESSID, wies, 50);
         break;
+      }
       break;
     case IPGEEX:
+      switch (HIWORD(wParam)) {
+      case EN_CHANGE:
         GetDlgItemText(hwnd, IPGEEX, ipge, 50);
         break;
+      }
       break;
     case IPGAT:
+      switch (HIWORD(wParam)) {
+      case EN_CHANGE:
         GetDlgItemText(hwnd, IPGAT, ipga, 50);
         break;
+      }
       break;
     case SMBUSER:
+      switch (HIWORD(wParam)) {
+      case EN_CHANGE:
         GetDlgItemText(hwnd, SMBUSER, smbus, 50);
         break;
+      }
       break;
     case SMBPWD:
+      switch (HIWORD(wParam)) {
+      case EN_CHANGE:
         GetDlgItemText(hwnd, SMBPWD, smbpw, 50);
         break;
+      }
       break;
     case LANG_LIST:
       switch (HIWORD(wParam)) {
