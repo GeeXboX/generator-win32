@@ -15,9 +15,9 @@ void associate() {
   if (!strcmp(subfont, ""))
     strcpy(subfont, SUBFONT_AS_LANGUAGE);
   if (!strcmp(remote, ""))
-    strcpy(remote, "pctv");
+    strcpy(remote, "atiusb");
   if (!strcmp(receiver, ""))
-    strcpy(receiver, "pctv");
+    strcpy(receiver, "atiusb");
   if (!strcmp(nvidia, ""))
     strcpy(nvidia, "no");
   if (!strcmp(audio, ""))
@@ -403,9 +403,9 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
     SendDlgItemMessage(hwnd, LANG_LIST, CB_SELECTSTRING, 0, (LPARAM)deflang->name);
     SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_SELECTSTRING, 0, (LPARAM)SUBFONT_AS_LANGUAGE);
     ListRemotes(hwnd);
-    SendDlgItemMessage(hwnd, REMOTE_LIST, CB_SELECTSTRING, 0, (LPARAM)"pctv");
+    SendDlgItemMessage(hwnd, REMOTE_LIST, CB_SELECTSTRING, 0, (LPARAM)"atiusb");
     ListReceivers(hwnd);
-    SendDlgItemMessage(hwnd, RECEIVER_LIST, CB_SELECTSTRING, 0,(LPARAM)"pctv");
+    SendDlgItemMessage(hwnd, RECEIVER_LIST, CB_SELECTSTRING, 0,(LPARAM)"atiusb");
     SendDlgItemMessage(hwnd, NVIDIA_LIST, CB_ADDSTRING, 0,(LPARAM)"no");
     SendDlgItemMessage(hwnd, NVIDIA_LIST, CB_ADDSTRING, 0,(LPARAM)"yes");
     SendDlgItemMessage(hwnd, NVIDIA_LIST, CB_SELECTSTRING, 0,(LPARAM)"no");
