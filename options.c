@@ -28,10 +28,20 @@ geexbox_options_t *
 init_options (void)
 {
   geexbox_options_t *opts;
+
   opts = (geexbox_options_t *) malloc (sizeof (geexbox_options_t));
   opts->net = (network_options_t *) malloc (sizeof (network_options_t));
   opts->net->wifi = (wifi_options_t *) malloc (sizeof (wifi_options_t));
   opts->net->smb = (samba_options_t *) malloc (sizeof (samba_options_t));
+
+  *opts->lang = *opts->subfont = *opts->remote = *opts->receiver = '\0';
+  *opts->vidix = *opts->audio = '\0';
+  *opts->net->type = *opts->net->host_ip = '\0';
+  *opts->net->gateway_ip = *opts->net->dns = '\0';
+  *opts->net->wifi->mode = *opts->net->wifi->wep = '\0';
+  *opts->net->wifi->essid = '\0';
+  *opts->net->smb->username = *opts->net->smb->password = '\0';
+
   return opts;
 }
 
