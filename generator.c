@@ -1,6 +1,8 @@
 #include <windows.h>
 #include <stdio.h>
-#include "resource.h" 
+
+#include "resource.h"
+#include "langconf.h"
 
 #define SUBFONT_AS_LANGUAGE "(Same as the language)"
 
@@ -9,7 +11,7 @@ char *path = "DOCS/README_";
 
 void associate() {
   if (!strcmp(lang, ""))
-    strcpy(lang, "en");
+    strcpy(lang, deflang->name);
   if (!strcmp(subfont, ""))
     strcpy(subfont, SUBFONT_AS_LANGUAGE);
   if (!strcmp(remote, ""))
@@ -32,43 +34,26 @@ char *GetVersionNumber () {
 }
 
 void ListSubFonts (HWND hwnd) {
-  char *list[] = { 
-    SUBFONT_AS_LANGUAGE,
-    "iso-8859-1",
-    "iso-8859-2",
-    "iso-8859-8",
-    "cp1251",
-    "koi8r"
-  };
   int i;
 
-  for (i = 0; i < sizeof(list)/sizeof(list[0]); i++)
-    SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_ADDSTRING, 0, (LPARAM)list[i]);    
+  SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_ADDSTRING, 0, (LPARAM)SUBFONT_AS_LANGUAGE);
+
+  for (i = 0; i < fontcount; i++)
+    SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_ADDSTRING, 0, (LPARAM)fonts[i].font);
 }
 
 void ListLanguages (HWND hwnd) {
-  WIN32_FIND_DATA FileData;
-  HANDLE hSearch;
-  BOOL finished = FALSE;
-  char buf[50];
-  char *lang;
+  char *name;
+  int i;
 
-  lang = (char *) malloc (10*sizeof(char));
-  hSearch = FindFirstFile("language/help_*.txt", &FileData);
-  while (!finished) {
-    lang = &FileData.cFileName[5];
-    strncpy(buf, lang, strlen(lang));
-    if (buf[2] == '.')
-      buf[2] = '\0';
-    else
-      buf[3] = '\0';
-    SendDlgItemMessage(hwnd, LANG_LIST, CB_ADDSTRING, 0, (LPARAM)buf);
-    SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_ADDSTRING, 0, (LPARAM)buf);
-    if (!FindNextFile(hSearch, &FileData))
-      if (GetLastError() == ERROR_NO_MORE_FILES)
-        finished = TRUE;
+
+  for (i = 0; i < langcount; i++)
+  {
+    name = langs[i].name;
+
+    SendDlgItemMessage(hwnd, LANG_LIST, CB_ADDSTRING, 0, (LPARAM)name);
+    SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_ADDSTRING, 0, (LPARAM)name);
   }
-  FindClose(hSearch);
 }
 
 void ListRemotes (HWND hwnd) {
@@ -220,53 +205,41 @@ void GenerateISO () {
   char buf[128], buf2[128], buf3[128], version[128];
   char *menu_font, *sub_font;
   FILE *fp;
+  int l, f;
 
   printf("*** Generating ISO image ***\n");
   printf("Remote : %s\n", remote);
   printf("Receiver : %s\n", receiver);
-  printf("Langage : %s\n", lang);
+  printf("Language : %s\n", lang);
+  printf("Subfont : %s\n", subfont);
+
+  l = find_language(lang);
 
   fp = fopen ("iso/GEEXBOX/etc/lang", "w");
-  fprintf (fp, "%s\n", lang);
+  fprintf (fp, "%s", langs[l].shortname);
   fclose (fp);
 
   CreateDirectory("ziso", NULL);
-  sprintf(buf, "language/help_%s.txt", lang);  
-  sprintf(buf2, "iso/GEEXBOX/usr/share/mplayer/help_%s.txt", lang);  
+  sprintf(buf, "language/help_%s.txt", langs[l].shortname);
+  sprintf(buf2, "iso/GEEXBOX/usr/share/mplayer/help_%s.txt", langs[l].shortname);
   CopyFile(buf, buf2, FALSE);
-  sprintf(buf, "language/menu_%s.conf", lang);  
-  sprintf(buf2, "iso/GEEXBOX/etc/mplayer/menu_%s.conf", lang);  
+  sprintf(buf, "language/menu_%s.conf", langs[l].shortname);
+  sprintf(buf2, "iso/GEEXBOX/etc/mplayer/menu_%s.conf", langs[l].shortname);
+  CopyFile(buf, buf2, FALSE);
+  sprintf(buf, "language/lang.conf");  
+  sprintf(buf2, "iso/GEEXBOX/etc/lang.conf");  
   CopyFile(buf, buf2, FALSE);
 
-  /* Languages who require `bitmap font` for menus */
-  if (!strcmp(lang, "hu"))
-    menu_font = "iso-8859-2";
-  else if (!strcmp(lang, "he"))
-    menu_font = "iso-8859-8";
-  else if (!strcmp(lang, "bg"))
-    menu_font = "cp1251";
-  else if (!strcmp(lang, "ru"))
-    menu_font = "koi8r";
-  else
-    menu_font = "";
+  menu_font = langs[l].bitmapmenu ? langs[l].font : "";
 
   sub_font = strcmp(subfont, SUBFONT_AS_LANGUAGE) ? subfont : lang;
 
-  if (!strcmp(sub_font, "iso-8859-2") || !strcmp(sub_font, "cz") 
-      || !strcmp(sub_font, "hu") || !strcmp(sub_font, "hu") || !strcmp(sub_font, "pl")
-      || !strcmp(sub_font, "ro") || !strcmp(sub_font, "sk"))
-    sub_font = "iso-8859-2";
-  else if (!strcmp(sub_font, "iso-8859-8") || !strcmp(sub_font, "he"))
-    sub_font = "iso-8859-8";
-  else if (!strcmp(sub_font, "cp1251") || !strcmp(sub_font, "bg"))
-    sub_font = "cp1251";
-  else if (!strcmp(sub_font, "koi8r") || !strcmp(sub_font, "ru"))
-    sub_font = "koi8r";
-  else 
-    sub_font = "iso-8859-1";
+  if ((f = find_language(sub_font)) >= 0) {
+    sub_font = langs[f].font;
+  }
 
   fp = fopen ("iso/GEEXBOX/etc/subfont", "w");
-  fprintf (fp, "%s\n", sub_font);
+  fprintf (fp, "%s", sub_font);
   fclose (fp);
 
   sprintf (buf, "font/%s/", sub_font);
@@ -326,7 +299,7 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
   case WM_INITDIALOG:
     ListSubFonts(hwnd);
     ListLanguages(hwnd);
-    SendDlgItemMessage(hwnd, LANG_LIST, CB_SELECTSTRING, 0, (LPARAM)"en");
+    SendDlgItemMessage(hwnd, LANG_LIST, CB_SELECTSTRING, 0, (LPARAM)deflang->name);
     SendDlgItemMessage(hwnd, SUBFONT_LIST, CB_SELECTSTRING, 0, (LPARAM)SUBFONT_AS_LANGUAGE);
     ListRemotes(hwnd);
     SendDlgItemMessage(hwnd, REMOTE_LIST, CB_SELECTSTRING, 0, (LPARAM)"pctv");
@@ -385,6 +358,8 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
     break;
 
   case WM_CLOSE:
+    free_langconf();
+
     EndDialog(hwnd, 0);
     break;
 
@@ -397,5 +372,7 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow)
 {
+  init_langconf();
+
   return DialogBox(hInstance, MAKEINTRESOURCE(IDD_MAIN), NULL, DlgProc);
 }
