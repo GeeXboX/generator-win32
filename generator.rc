@@ -3,7 +3,7 @@
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
 
-IDD_MAIN DIALOG DISCARDABLE  0, 0, 363, 189
+IDD_MAIN DIALOG DISCARDABLE  0, 0, 363, 205
 STYLE WS_OVERLAPPEDWINDOW
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -55,12 +55,16 @@ BEGIN
     LTEXT           "User password :", IDC_STATIC, 190, 135, 60, 8
     EDITTEXT        SMBPWD, 255, 135, 100, 12, ES_AUTOHSCROLL
 
-    LTEXT           "If you don't know what an option is, keep default value.", IDC_STATIC, 95, 161, 200, 8
+    CHECKBOX        "Telnet Server", TELNET_SERVER, 10, 175, 60, 8
+    CHECKBOX        "FTP Server", FTP_SERVER, 10, 185, 60, 8
+
+    CTEXT           "If you don't know what an option is, keep default value.", IDC_STATIC, 215, 161, 120, 8
+    LTEXT           "WARNING : Enabling these services opens a gate which authorize remote anonymous connection to your computer. Only enable this if you know what you're doing.", IDC_STATIC, 10, 140, 160, 8
 
     GROUPBOX        "GeeXboX's Options", IDC_STATIC, 5, 5, 173, 120
-
+    GROUPBOX        "Network Services", IDC_STATIC, 5, 130, 173, 70
     GROUPBOX        "Network Options", IDC_STATIC, 185, 5, 173, 148
 
-    PUSHBUTTON      "&Ok", IDC_OK, 129, 172, 50, 14
-    PUSHBUTTON      "&Help", IDC_HLP, 184, 172, 50, 14
+    PUSHBUTTON      "&Ok", IDC_OK, 215, 185, 50, 14
+    PUSHBUTTON      "&Help", IDC_HLP, 270, 185, 50, 14
 END

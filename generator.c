@@ -256,6 +256,10 @@ void GenerateISO (HWND hwnd) {
   printf("DNS Server IP : %s\n", ipdns);
   printf("User login : %s\n", smbus);
   printf("User Password : %s\n", smbpw);
+  printf("Enable Telnet Server : %s\n",
+         IsDlgButtonChecked (hwnd, TELNET_SERVER) ? "yes" : "no");
+  printf("Enable FTP Server : %s\n",
+         IsDlgButtonChecked (hwnd, FTP_SERVER) ? "yes" : "no");
 
   l = find_language(lang);
 
@@ -349,6 +353,11 @@ void GenerateISO (HWND hwnd) {
   fprintf (fp, "DNS_SERVER=\"%s\"\n", ipdns);
   fprintf (fp, "SMB_USER=\"%s\"\n", smbus);
   fprintf (fp, "SMB_PWD=\"%s\"\n", smbpw);
+  fprintf (fp, "TELNET_SERVER=\"%s\"\n",
+           IsDlgButtonChecked (hwnd, TELNET_SERVER) ? "yes" : "no");
+  fprintf (fp, "FTP_SERVER=\"%s\"\n",
+           IsDlgButtonChecked (hwnd, FTP_SERVER) ? "yes" : "no");
+
   fclose (fp);
 
   sprintf(buf, "lirc/lircrc_%s", remote);
@@ -550,6 +559,28 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
         GetDlgItemText(hwnd, SUBFONT_LIST, subfont, 50);
         break;
       }
+      break;
+    case TELNET_SERVER:
+      switch (HIWORD(wParam))
+        {
+        case BN_CLICKED:
+          if (IsDlgButtonChecked (hwnd, TELNET_SERVER)) 
+            CheckDlgButton (hwnd, TELNET_SERVER, BST_UNCHECKED);
+          else
+            CheckDlgButton (hwnd, TELNET_SERVER, BST_CHECKED);
+          break; 
+        }
+      break;
+    case FTP_SERVER:
+      switch (HIWORD(wParam))
+        {
+        case BN_CLICKED:
+          if (IsDlgButtonChecked (hwnd, FTP_SERVER))
+            CheckDlgButton (hwnd, FTP_SERVER, BST_UNCHECKED);
+          else
+            CheckDlgButton (hwnd, FTP_SERVER, BST_CHECKED);
+          break; 
+        }
       break;
     }
     break;

@@ -16,6 +16,8 @@
 #define IPDNS                           1013
 #define SMBUSER                         1014
 #define SMBPWD                          1015
+#define TELNET_SERVER                   1016
+#define FTP_SERVER                      1017
 #define IDC_OK                          1020
 #define IDC_HLP                         1021
 #define IDC_STATIC                      1022
