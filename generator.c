@@ -385,8 +385,10 @@ void GenerateISO (HWND hwnd) {
 
   MultipleFileDelete("*", "ziso/", TRUE);
   RemoveDirectory("ziso");
-  
-  printf("*** Your customized GeeXboX ISO is ready ***\n");
+
+  sprintf(buf, "Your customized GeeXboX ISO is ready");
+  printf("*** %s ***\n", buf);
+  MessageBox(hwnd, buf, "DONE", MB_OK);
 }
 
 BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
