@@ -63,6 +63,9 @@ void ListRemotes (HWND hwnd) {
   char remote[50];
 
   hSearch = FindFirstFile("lirc/lircrc_*", &FileData);
+  if (hSearch == INVALID_HANDLE_VALUE)
+    return;
+
   while (!finished) {
     strcpy(remote, &FileData.cFileName[7]);
     SendDlgItemMessage(hwnd, REMOTE_LIST, CB_ADDSTRING, 0, (LPARAM)remote);
@@ -80,6 +83,9 @@ void ListReceivers (HWND hwnd) {
   char receiver[50];
 
   hSearch = FindFirstFile("lirc/lircd_*", &FileData);
+  if (hSearch == INVALID_HANDLE_VALUE)
+    return;
+
   while (!finished) {
     strcpy(receiver, &FileData.cFileName[6]);
     if (strcmp (&FileData.cFileName[strlen(FileData.cFileName)-5], ".conf"))
@@ -114,6 +120,8 @@ void MultipleFileDelete (char *token, char *src, BOOL recursive) {
   lstrcpy(search, src);
   lstrcat(search, token);
   hSearch = FindFirstFile(search, &FileData);
+  if (hSearch == INVALID_HANDLE_VALUE)
+    return;
 
   while (!finished) {
     lstrcpy(file, src);
@@ -153,6 +161,8 @@ void MultipleFileCopy (char *token, char *src, char *dest,
   lstrcpy(search, src);
   lstrcat(search, token);
   hSearch = FindFirstFile(search, &FileData);
+  if (hSearch == INVALID_HANDLE_VALUE)
+    return;
 
   while (!finished) {
     lstrcpy(oldFile, src);
