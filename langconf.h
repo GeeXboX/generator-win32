@@ -4,7 +4,7 @@
 #define PATH_LANGCONF "language/lang.conf"
 
 struct langinfo {
-	char shortname[5];
+	char shortname[10];
 	char name[50];
 	char font[50];
 	int bitmapmenu;
