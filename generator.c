@@ -465,8 +465,7 @@ GenerateISO (HWND hwnd)
 static BOOL CALLBACK
 DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
-  char *caption;
-  caption = (char *) malloc (100 * sizeof (char));
+  char caption[100];
 
   switch (Message)
     {
