@@ -91,6 +91,19 @@ void ListReceivers (HWND hwnd) {
   FindClose(hSearch);
 }
 
+BOOL FileExists(char *file) {
+  WIN32_FIND_DATA FileData;
+  HANDLE hSearch;
+
+  hSearch = FindFirstFile(file, &FileData);
+  if (hSearch != INVALID_HANDLE_VALUE) {
+    FindClose(hSearch);
+    return TRUE;    
+  } else {
+    return FALSE;
+  }
+}
+
 void MultipleFileDelete (char *token, char *src, BOOL recursive) {
   WIN32_FIND_DATA FileData;
   HANDLE hSearch;
@@ -201,11 +214,13 @@ void ExecuteToFile (char *cmdline, char *file) {
   CloseHandle(output);
 }
 
-void GenerateISO () {
+void GenerateISO (HWND hwnd) {
   char buf[128], buf2[128], buf3[128], version[128];
   char *menu_font, *sub_font;
   FILE *fp;
   int l, f;
+  char *filelist[2];
+  int i;
 
   printf("*** Generating ISO image ***\n");
   printf("Remote : %s\n", remote);
@@ -221,6 +236,34 @@ void GenerateISO () {
 
   if ((f = find_language(sub_font)) >= 0)
     sub_font = langs[f].font;
+
+  sprintf (buf, "font/%s/font.desc", sub_font);
+  filelist[0] = buf;
+  sprintf (buf2, "font/%s/font.desc", menu_font);
+  filelist[1] = *menu_font ? buf2 : NULL;
+  for (i = 0; i < 2; i++) {
+    if (filelist[i] && FileExists(filelist[i]) == FALSE)
+    {
+      sprintf(buf3, "%s font is missing", sub_font);
+      printf("*** %s ***\n", buf3);
+      MessageBox(hwnd, buf3, "ERROR", MB_OK | MB_ICONERROR);
+      return;
+    }
+  }
+
+  sprintf (buf, "language/help_%s.txt", langs[l].shortname);
+  filelist[0] = buf;
+  sprintf (buf2, "language/menu_%s.conf", langs[l].shortname);
+  filelist[1] = buf2;
+  for (i = 0; i < 2; i++) {
+    if (filelist[i] && FileExists(filelist[i]) == FALSE)
+    {
+      sprintf(buf3, "%s language file is missing", filelist[i]);
+      printf("*** %s ***\n", buf3);
+      MessageBox(hwnd, buf3, "ERROR", MB_OK | MB_ICONERROR);
+      return;
+    }
+  }
 
   fp = fopen ("iso/GEEXBOX/etc/lang", "w");
   fprintf (fp, "%s", langs[l].shortname);
@@ -312,7 +355,7 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
     switch (LOWORD(wParam)) {
     case IDC_OK:
       associate();
-      GenerateISO();
+      GenerateISO(hwnd);
       break;
     case IDC_HLP: {
       char load[30], tmp[30];
