@@ -88,3 +88,49 @@ display_options_to_console (HWND hwnd, geexbox_options_t *opts)
   printf ("Enable FTP Server : %s\n",
           IsDlgButtonChecked (hwnd, FTP_SERVER) ? "yes" : "no");
 }
+
+void
+write_options_to_disk (HWND hwnd, geexbox_options_t *opts)
+{
+  FILE *fp;
+  char buf[128];
+
+  fp = fopen ("iso/GEEXBOX/etc/audio", "wb");
+  fprintf (fp, "SPDIF=%s\n", !strcmp (opts->audio, "spdif") ? "yes" : "no");
+  fclose (fp);
+  if (!strcmp (opts->vidix, "no"))
+    {
+      fp = fopen ("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix", "ab");
+      fclose (fp);
+    }
+  else
+    DeleteFile ("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix");
+
+  fp = fopen ("iso/GEEXBOX/etc/view_img_timeout", "wb");
+  fprintf (fp, "%s", opts->image_tempo);
+  fclose (fp);
+
+  fp = fopen ("iso/GEEXBOX/etc/network", "wb");
+  fprintf (fp, "PHY_TYPE=\"%s\"\n", opts->net->type);
+  fprintf (fp, "WIFI_MODE=\"%s\"\n", opts->net->wifi->mode);
+  fprintf (fp, "WIFI_WEP=\"%s\"\n", opts->net->wifi->wep);
+  fprintf (fp, "WIFI_ESSID=\"%s\"\n", opts->net->wifi->essid);
+  fprintf (fp, "HOST=\"%s\"\n", opts->net->host_ip);
+  fprintf (fp, "GATEWAY=\"%s\"\n", opts->net->gateway_ip);
+  fprintf (fp, "DNS_SERVER=\"%s\"\n", opts->net->dns);
+  fprintf (fp, "SMB_USER=\"%s\"\n", opts->net->smb->username);
+  fprintf (fp, "SMB_PWD=\"%s\"\n", opts->net->smb->password);
+  fprintf (fp, "TELNET_SERVER=\"%s\"\n",
+           IsDlgButtonChecked (hwnd, TELNET_SERVER) ? "yes" : "no");
+  fprintf (fp, "FTP_SERVER=\"%s\"\n",
+           IsDlgButtonChecked (hwnd, FTP_SERVER) ? "yes" : "no");
+
+  fclose (fp);
+
+  sprintf (buf, "lirc/lircrc_%s", opts->remote);
+  CopyFile (buf, "iso/GEEXBOX/etc/lircrc", FALSE);
+  sprintf (buf, "lirc/lircd_%s", opts->receiver);
+  CopyFile (buf, "iso/GEEXBOX/etc/lircd", FALSE);
+  sprintf (buf, "lirc/lircd_%s.conf", opts->remote);
+  CopyFile (buf, "iso/GEEXBOX/etc/lircd.conf", FALSE);
+}
