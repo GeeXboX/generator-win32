@@ -215,6 +215,13 @@ void GenerateISO () {
 
   l = find_language(lang);
 
+  menu_font = langs[l].bitmapmenu ? langs[l].font : "";
+
+  sub_font = strcmp(subfont, SUBFONT_AS_LANGUAGE) ? subfont : lang;
+
+  if ((f = find_language(sub_font)) >= 0)
+    sub_font = langs[f].font;
+
   fp = fopen ("iso/GEEXBOX/etc/lang", "w");
   fprintf (fp, "%s", langs[l].shortname);
   fclose (fp);
@@ -229,14 +236,6 @@ void GenerateISO () {
   sprintf(buf, "language/lang.conf");  
   sprintf(buf2, "iso/GEEXBOX/etc/lang.conf");  
   CopyFile(buf, buf2, FALSE);
-
-  menu_font = langs[l].bitmapmenu ? langs[l].font : "";
-
-  sub_font = strcmp(subfont, SUBFONT_AS_LANGUAGE) ? subfont : lang;
-
-  if ((f = find_language(sub_font)) >= 0) {
-    sub_font = langs[f].font;
-  }
 
   fp = fopen ("iso/GEEXBOX/etc/subfont", "w");
   fprintf (fp, "%s", sub_font);
