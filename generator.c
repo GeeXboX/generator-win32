@@ -281,7 +281,7 @@ void GenerateISO () {
 
   MultipleFileCopy("*", "iso/", "ziso/", "GEEXBOX", TRUE);
 
-  sprintf(version, "geexbox-%s.iso", GetVersionNumber());
+  sprintf(version, "geexbox-%s-%s.iso", GetVersionNumber(), langs[l].shortname);
   ExecuteToFile("win32/mkisofs -quiet -no-pad -V GEEXBOX -volset GEEXBOX -P \"The GeeXboX team (www.geexbox.org)\" -p \"The GeeXboX team (www.geexbox.org)\" -A \"MKISOFS ISO 9660/HFS FILESYSTEM BUILDER\" -z -f -D -r -J -b GEEXBOX/boot/isolinux.bin -c GEEXBOX/boot/boot.catalog -sort sort -no-emul-boot -boot-load-size 4 -boot-info-table ziso", version);
 
   MultipleFileDelete("*", "ziso/", TRUE);
