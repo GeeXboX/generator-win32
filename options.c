@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <windows.h>
 
 #include "resource.h"
@@ -120,12 +121,12 @@ write_options_to_disk (HWND hwnd, geexbox_options_t *opts,
     return res;
 
   fp = fopen ("iso/GEEXBOX/etc/audio", "wb");
-  fprintf (fp, "ALSA_CARD=%d\n", opts->snd->card_id);
-  fprintf (fp, "SOUNDCARD_MODE=%s\n",
+  fprintf (fp, "ALSA_CARD=\"%d\"\n", opts->snd->card_id);
+  fprintf (fp, "SOUNDCARD_MODE=\"%s\"\n",
            (opts->snd->mode == SOUND_MODE_SPDIF) ? "SPDIF" : "analog");
-  fprintf (fp, "AC3_DECODER=%s\n",
+  fprintf (fp, "AC3_DECODER=\"%s\"\n",
            IsDlgButtonChecked (hwnd, AUDIO_HWAC3) ? "hardware" : "software");
-  fprintf (fp, "CHANNELS=%d\n", opts->snd->channels);
+  fprintf (fp, "CHANNELS=\"%d\"\n", opts->snd->channels);
   fclose (fp);
 
   if (!strcmp (opts->vidix, "no"))
@@ -165,4 +166,113 @@ write_options_to_disk (HWND hwnd, geexbox_options_t *opts,
   CopyFile (buf, "iso/GEEXBOX/etc/lircd.conf", FALSE);
 
   return res;
+}
+
+static void
+get_config_value (FILE *fp, const char *var, char *dst)
+{
+  static char buf[256];
+  char *line, *value, *end;
+
+  rewind (fp);
+  while ((line = fgets (buf, sizeof (buf), fp)))
+    {
+      while (isspace (*line))
+        line++;
+      while (isspace (line[strlen (line) - 1]))
+        line[strlen (line) - 1] = '\0';
+
+      if (*line == '#' || (value = strchr (line, '=')) == NULL)
+        continue;
+
+      *value++ = '\0';
+
+      if (strcmp (line, var))
+        continue;
+
+      while (*value != '"')
+        *value++;
+      *value++;
+      
+      end = strchr (value, '"');
+      value[strlen (value) - strlen (end)] = '\0';
+      strcpy (dst, value);
+      return;
+    }
+
+  *dst = '\0';
+}
+
+void
+read_options_from_disk (HWND hwnd, geexbox_options_t *opts)
+{
+  FILE *fp;
+
+  fp = fopen ("iso/GEEXBOX/etc/audio", "r");
+  if (fp)
+    {
+      char tmp[50];
+      get_config_value (fp, "ALSA_CARD", tmp);
+      opts->snd->card_id = atoi (tmp);
+
+      get_config_value (fp, "SOUNDCARD_MODE", tmp);
+      if (!strcmp (tmp, "SPDIF"))
+        opts->snd->mode = SOUND_MODE_SPDIF;
+      else
+        opts->snd->mode = SOUND_MODE_ANALOG;
+
+      get_config_value (fp, "CHANNELS", tmp);
+      opts->snd->channels = atoi (tmp);
+
+      get_config_value (fp, "AC3_DECODER", tmp);
+      if (!strcmp (tmp, "software"))
+        CheckDlgButton (hwnd, AUDIO_HWAC3, BST_UNCHECKED);
+      else
+        CheckDlgButton (hwnd, AUDIO_HWAC3, BST_CHECKED);
+      fclose (fp);         
+    }
+
+  fp = fopen ("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix", "r");
+  if (fp)
+    {
+      strcpy (opts->vidix, "no");
+      fclose (fp);
+    }
+  else
+    strcpy (opts->vidix, "yes");
+
+  fp = fopen ("iso/GEEXBOX/etc/view_img_timeout", "r");
+  if (fp)
+    {
+      fscanf (fp, "%s", opts->image_tempo);
+      fclose (fp);
+    }
+
+  fp = fopen ("iso/GEEXBOX/etc/network", "r");
+  if (fp)
+    {
+      char tmp[50];
+      get_config_value (fp, "PHY_TYPE", opts->net->type);
+      get_config_value (fp, "WIFI_MODE", opts->net->wifi->mode);
+      get_config_value (fp, "WIFI_WEP", opts->net->wifi->wep);
+      get_config_value (fp, "WIFI_ESSID", opts->net->wifi->essid);
+      get_config_value (fp, "HOST", opts->net->host_ip);
+      get_config_value (fp, "GATEWAY", opts->net->gateway_ip);
+      get_config_value (fp, "DNS_SERVER", opts->net->dns);
+      get_config_value (fp, "SMB_USER", opts->net->smb->username);
+      get_config_value (fp, "SMB_PWD", opts->net->smb->password);
+
+      get_config_value (fp, "TELNET_SERVER", tmp);
+      if (!strcmp (tmp, "yes"))
+        CheckDlgButton (hwnd, TELNET_SERVER, BST_CHECKED);
+      else
+        CheckDlgButton (hwnd, TELNET_SERVER, BST_UNCHECKED);
+
+      get_config_value (fp, "FTP_SERVER", tmp);
+      if (!strcmp (tmp, "yes"))
+        CheckDlgButton (hwnd, FTP_SERVER, BST_CHECKED);
+      else
+        CheckDlgButton (hwnd, FTP_SERVER, BST_UNCHECKED);
+      fclose (fp);
+    }
 }

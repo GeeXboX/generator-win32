@@ -192,60 +192,128 @@ GenerateISO (HWND hwnd)
   MessageBox (hwnd, "Your customized GeeXboX ISO is ready", "DONE", MB_OK);
 }
 
+static void
+set_items_values (HWND hwnd)
+{
+  char tmp[50];
+
+  /* set main title */
+  sprintf (tmp, "GeeXboX Generator %s", GetVersionNumber ());
+  SetWindowText (hwnd, tmp);
+
+  /* list languages */
+  ListLanguages (hwnd);
+  SendDlgItemMessage (hwnd, LANG_LIST,
+                      CB_SELECTSTRING, 0, (LPARAM) deflang->name);
+
+  /* list subfonts */
+  ListSubFonts (hwnd);
+  SendDlgItemMessage (hwnd, SUBFONT_LIST,
+                      CB_SELECTSTRING, 0, (LPARAM) SUBFONT_AS_LANGUAGE);
+
+  /* list remotes */
+  ListRemotes (hwnd);
+  SendDlgItemMessage (hwnd, REMOTE_LIST,
+                      CB_SELECTSTRING, 0, (LPARAM) "atiusb");
+
+  /* list receivers */
+  ListReceivers (hwnd);
+  SendDlgItemMessage (hwnd, RECEIVER_LIST,
+                      CB_SELECTSTRING, 0, (LPARAM) "atiusb");
+
+  /* set nvidia vidix item */
+  SendDlgItemMessage(hwnd, NVIDIA_LIST, CB_ADDSTRING, 0, (LPARAM) "no");
+  SendDlgItemMessage (hwnd, NVIDIA_LIST, CB_ADDSTRING, 0, (LPARAM) "yes");
+  SendDlgItemMessage (hwnd, NVIDIA_LIST, CB_SELECTSTRING, 0,
+                      (LPARAM) ((opts->vidix) ? opts->vidix : "no"));
+
+  /* set image timeout value */
+  SetWindowText (GetDlgItem (hwnd, TEMPOIMG),
+                 (opts->image_tempo) ? opts->image_tempo : "10");
+
+  /* audio card's ID */
+  sprintf (tmp, "%d", (opts->snd->card_id) ? opts->snd->card_id : 0);
+  SetWindowText (GetDlgItem (hwnd, AUDIO_CARD), tmp);
+
+  /* audio mode */
+  SendDlgItemMessage (hwnd, AUDIO_MODE_LIST,
+                      CB_ADDSTRING, 0, (LPARAM) SOUND_MODE_ANALOG_STR);
+  SendDlgItemMessage (hwnd, AUDIO_MODE_LIST,
+                      CB_ADDSTRING, 0, (LPARAM) SOUND_MODE_SPDIF_STR);
+  if (opts->snd->mode == SOUND_MODE_SPDIF)
+    SendDlgItemMessage (hwnd, AUDIO_MODE_LIST,
+                        CB_SELECTSTRING, 0, (LPARAM) SOUND_MODE_SPDIF_STR);
+  else
+    SendDlgItemMessage (hwnd, AUDIO_MODE_LIST,
+                        CB_SELECTSTRING, 0, (LPARAM) SOUND_MODE_ANALOG_STR);
+
+  /* audio channels number */
+  SendDlgItemMessage (hwnd, AUDIO_CHANNELS_LIST,
+                      CB_ADDSTRING, 0, (LPARAM) SOUND_CHANNELS_2);
+  SendDlgItemMessage (hwnd, AUDIO_CHANNELS_LIST,
+                      CB_ADDSTRING, 0, (LPARAM) SOUND_CHANNELS_4);
+  SendDlgItemMessage (hwnd, AUDIO_CHANNELS_LIST,
+                      CB_ADDSTRING, 0, (LPARAM) SOUND_CHANNELS_6);
+  if (opts->snd->channels == 6)
+    strcpy (tmp, SOUND_CHANNELS_6);
+  else if (opts->snd->channels == 4)
+    strcpy (tmp, SOUND_CHANNELS_4);
+  else
+    strcpy (tmp, SOUND_CHANNELS_2);
+  SendDlgItemMessage (hwnd, AUDIO_CHANNELS_LIST,
+                      CB_SELECTSTRING, 0, (LPARAM) tmp);
+
+  /* network type */
+  SendDlgItemMessage (hwnd, PHY_LIST, CB_ADDSTRING, 0, (LPARAM) "auto");
+  SendDlgItemMessage (hwnd, PHY_LIST, CB_ADDSTRING, 0, (LPARAM) "wifi");
+  SendDlgItemMessage (hwnd, PHY_LIST, CB_ADDSTRING, 0, (LPARAM) "ethernet");
+  SendDlgItemMessage (hwnd, PHY_LIST, CB_SELECTSTRING, 0,
+                      (LPARAM) (opts->net->type ? opts->net->type : "auto"));
+
+  /* wifi mode */
+  SendDlgItemMessage (hwnd, WIMO_LIST, CB_ADDSTRING, 0, (LPARAM) "managed");
+  SendDlgItemMessage (hwnd, WIMO_LIST, CB_ADDSTRING, 0, (LPARAM) "ad-hoc");
+  SendDlgItemMessage (hwnd, WIMO_LIST, CB_SELECTSTRING, 0,
+                      (LPARAM) (opts->net->wifi->mode
+                                ? opts->net->wifi->mode : "managed"));
+
+  /* wifi wep key */
+  SetWindowText (GetDlgItem (hwnd, WIFIWEP),
+                 (opts->net->wifi->wep ? opts->net->wifi->wep : ""));
+
+  /* wifi ssid */
+  SetWindowText (GetDlgItem (hwnd, WIFIESSID),
+                 (opts->net->wifi->essid ? opts->net->wifi->essid : "any"));
+
+  /* network host IP */
+  SetWindowText (GetDlgItem (hwnd, IPGEEX),
+                 (opts->net->host_ip ? opts->net->host_ip : ""));
+
+  /* network gateway IP */
+  SetWindowText (GetDlgItem (hwnd, IPGAT),
+                 (opts->net->gateway_ip ? opts->net->gateway_ip : ""));
+
+  /* network DNS server IP */
+  SetWindowText (GetDlgItem (hwnd, IPDNS),
+                 (opts->net->dns ? opts->net->dns : ""));
+
+  /* samba username */
+  SetWindowText (GetDlgItem (hwnd, SMBUSER),
+                 (opts->net->smb->username ? opts->net->smb->username : ""));
+
+  /* samba password */
+  SetWindowText (GetDlgItem (hwnd, SMBPWD),
+                 (opts->net->smb->password ? opts->net->smb->password : ""));
+}
+
 static BOOL CALLBACK
 DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
-  char caption[100];
-
   switch (Message)
     {
     case WM_INITDIALOG:
-      ListSubFonts (hwnd);
-      ListLanguages (hwnd);
-      SendDlgItemMessage (hwnd, LANG_LIST,
-                          CB_SELECTSTRING, 0, (LPARAM) deflang->name);
-      SendDlgItemMessage (hwnd, SUBFONT_LIST,
-                          CB_SELECTSTRING, 0, (LPARAM) SUBFONT_AS_LANGUAGE);
-      ListRemotes (hwnd);
-      SendDlgItemMessage (hwnd, REMOTE_LIST,
-                          CB_SELECTSTRING, 0, (LPARAM) "atiusb");
-      ListReceivers (hwnd);
-      SendDlgItemMessage (hwnd, RECEIVER_LIST,
-                          CB_SELECTSTRING, 0,(LPARAM) "atiusb");
-      SendDlgItemMessage(hwnd, NVIDIA_LIST, CB_ADDSTRING, 0,(LPARAM) "no");
-      SendDlgItemMessage (hwnd, NVIDIA_LIST, CB_ADDSTRING, 0,(LPARAM) "yes");
-      SendDlgItemMessage (hwnd, NVIDIA_LIST, CB_SELECTSTRING, 0,(LPARAM) "no");
-
-      SetWindowText (GetDlgItem (hwnd, AUDIO_CARD), "0");
-      SendDlgItemMessage (hwnd, AUDIO_MODE_LIST,
-                          CB_ADDSTRING, 0, (LPARAM) SOUND_MODE_ANALOG_STR);
-      SendDlgItemMessage (hwnd, AUDIO_MODE_LIST,
-                          CB_ADDSTRING, 0, (LPARAM) SOUND_MODE_SPDIF_STR);
-      SendDlgItemMessage (hwnd, AUDIO_MODE_LIST,
-                          CB_SELECTSTRING, 0, (LPARAM) SOUND_MODE_ANALOG_STR);
-      SendDlgItemMessage (hwnd, AUDIO_CHANNELS_LIST,
-                          CB_ADDSTRING, 0, (LPARAM) SOUND_CHANNELS_2);
-      SendDlgItemMessage (hwnd, AUDIO_CHANNELS_LIST,
-                          CB_ADDSTRING, 0, (LPARAM) SOUND_CHANNELS_4);
-      SendDlgItemMessage (hwnd, AUDIO_CHANNELS_LIST,
-                          CB_ADDSTRING, 0, (LPARAM) SOUND_CHANNELS_6);
-      SendDlgItemMessage (hwnd, AUDIO_CHANNELS_LIST,
-                          CB_SELECTSTRING, 0, (LPARAM) SOUND_CHANNELS_2);
-
-      SendDlgItemMessage (hwnd, PHY_LIST, CB_ADDSTRING, 0,(LPARAM) "auto");
-      SendDlgItemMessage (hwnd, PHY_LIST, CB_ADDSTRING, 0,(LPARAM) "wifi");
-      SendDlgItemMessage (hwnd, PHY_LIST, CB_ADDSTRING, 0,(LPARAM) "ethernet");
-      SendDlgItemMessage (hwnd, PHY_LIST, CB_SELECTSTRING, 0,(LPARAM) "auto");
-      SendDlgItemMessage (hwnd, WIMO_LIST, CB_ADDSTRING, 0,(LPARAM) "managed");
-      SendDlgItemMessage (hwnd, WIMO_LIST, CB_ADDSTRING, 0,(LPARAM) "ad-hoc");
-      SendDlgItemMessage (hwnd, WIMO_LIST,
-                          CB_SELECTSTRING, 0,(LPARAM) "managed");
-      sprintf (caption, "GeeXboX Generator %s", GetVersionNumber ());
-
-      SetWindowText (hwnd, caption);
-      SetWindowText (GetDlgItem (hwnd, TEMPOIMG), "10");
-      SetWindowText (GetDlgItem (hwnd, WIFIESSID), "any");
-      SetWindowText (GetDlgItem (hwnd, SMBUSER), "SHARE");
+      read_options_from_disk (hwnd, opts);
+      set_items_values (hwnd);
       break;
     case WM_COMMAND:
       switch (LOWORD (wParam))
@@ -323,7 +391,7 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
               else if (!strcmp (tmp, SOUND_CHANNELS_4))
                 opts->snd->channels = 4;
               else
-                opts->snd->mode = 2;
+                opts->snd->channels = 2;
               break;
             }
           break;

@@ -70,5 +70,6 @@ void set_default_options_value (geexbox_options_t *opts);
 void display_options_to_console (HWND hwnd, geexbox_options_t *opts);
 int write_options_to_disk (HWND hwnd, geexbox_options_t *opts,
                            char *subfont_dir, char *menufont_dir);
+void read_options_from_disk (HWND hwnd, geexbox_options_t *opts);
 
 #endif
