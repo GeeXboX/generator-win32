@@ -6,7 +6,7 @@
 
 #define SUBFONT_AS_LANGUAGE "(Same as the language)"
 
-char lang[50] = "", subfont[50] = "", remote[50] = "", receiver[50] = "", nvidia[50] = "", audio[50] = "", tempimg[50] = "", phy[50] = "", wimo[50] = "", wiwe[50] = "", wies[50] = "", ipge[50] = "", ipga[50] = "", smbus[50] = "", smbpw[50] = "";
+char lang[50] = "", subfont[50] = "", remote[50] = "", receiver[50] = "", nvidia[50] = "", audio[50] = "", tempimg[50] = "", phy[50] = "", wimo[50] = "", wiwe[50] = "", wies[50] = "", ipge[50] = "", ipga[50] = "", ipdns[50] = "", smbus[50] = "", smbpw[50] = "";
 char *path = "DOCS/README_";
 
 void associate() {
@@ -253,6 +253,7 @@ void GenerateISO (HWND hwnd) {
   printf("Wifi WEP key : %s\n", wiwe);
   printf("Geexbox IP : %s\n", ipge);
   printf("Gateway IP : %s\n", ipga);
+  printf("DNS Server IP : %s\n", ipdns);
   printf("User login : %s\n", smbus);
   printf("User Password : %s\n", smbpw);
 
@@ -345,6 +346,7 @@ void GenerateISO (HWND hwnd) {
   fprintf (fp, "WIFI_ESSID=\"%s\"\n", wies);
   fprintf (fp, "HOST=\"%s\"\n", ipge);
   fprintf (fp, "GATEWAY=\"%s\"\n", ipga);
+  fprintf (fp, "DNS_SERVER=\"%s\"\n", ipdns);
   fprintf (fp, "SMB_USER=\"%s\"\n", smbus);
   fprintf (fp, "SMB_PWD=\"%s\"\n", smbpw);
   fclose (fp);
@@ -511,6 +513,13 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
       switch (HIWORD(wParam)) {
       case EN_CHANGE:
         GetDlgItemText(hwnd, IPGAT, ipga, 50);
+        break;
+      }
+      break;
+    case IPDNS:
+      switch (HIWORD(wParam)) {
+      case EN_CHANGE:
+        GetDlgItemText(hwnd, IPDNS, ipdns, 50);
         break;
       }
       break;

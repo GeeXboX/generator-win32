@@ -3,7 +3,7 @@
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
 
-IDD_MAIN DIALOG DISCARDABLE  0, 0, 363, 169
+IDD_MAIN DIALOG DISCARDABLE  0, 0, 363, 189
 STYLE WS_OVERLAPPEDWINDOW
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -46,18 +46,21 @@ BEGIN
     LTEXT           "Gateway IP :", IDC_STATIC, 190, 90, 60, 8
     EDITTEXT        IPGAT, 255, 90, 100, 12, ES_AUTOHSCROLL
 
-    LTEXT           "User login :", IDC_STATIC, 190, 105, 60, 8
-    EDITTEXT        SMBUSER, 255, 105, 100, 12, ES_AUTOHSCROLL
+    LTEXT           "DNS Server IP :", IDC_STATIC, 190, 105, 60, 8
+    EDITTEXT        IPDNS, 255, 105, 100, 12, ES_AUTOHSCROLL
 
-    LTEXT           "User password :", IDC_STATIC, 190, 120, 60, 8
-    EDITTEXT        SMBPWD, 255, 120, 100, 12, ES_AUTOHSCROLL
+    LTEXT           "User login :", IDC_STATIC, 190, 120, 60, 8
+    EDITTEXT        SMBUSER, 255, 120, 100, 12, ES_AUTOHSCROLL
 
-    LTEXT           "If you don't know what an option is, keep default value.", IDC_STATIC, 95, 141, 175, 8
+    LTEXT           "User password :", IDC_STATIC, 190, 135, 60, 8
+    EDITTEXT        SMBPWD, 255, 135, 100, 12, ES_AUTOHSCROLL
+
+    LTEXT           "If you don't know what an option is, keep default value.", IDC_STATIC, 95, 161, 200, 8
 
     GROUPBOX        "GeeXboX's Options", IDC_STATIC, 5, 5, 173, 120
 
-    GROUPBOX        "Network Options", IDC_STATIC, 185, 5, 173, 133
+    GROUPBOX        "Network Options", IDC_STATIC, 185, 5, 173, 148
 
-    PUSHBUTTON      "&Ok", IDC_OK, 129, 152, 50, 14
-    PUSHBUTTON      "&Help", IDC_HLP, 184, 152, 50, 14
+    PUSHBUTTON      "&Ok", IDC_OK, 129, 172, 50, 14
+    PUSHBUTTON      "&Help", IDC_HLP, 184, 172, 50, 14
 END
