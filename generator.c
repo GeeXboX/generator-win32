@@ -6,7 +6,7 @@
 
 #define SUBFONT_AS_LANGUAGE "(Same as the language)"
 
-char lang[50] = "", subfont[50] = "", remote[50] = "", receiver[50] = "";
+char lang[50] = "", subfont[50] = "", remote[50] = "", receiver[50] = "", nvidia[50] = "", audio[50] = "", tempimg[50] = "", phy[50] = "", wimo[50] = "", wiwe[50] = "", wies[50] = "", ipge[50] = "", ipga[50] = "", smbus[50] = "", smbpw[50] = "";
 char *path = "DOCS/README_";
 
 void associate() {
@@ -18,6 +18,14 @@ void associate() {
     strcpy(remote, "pctv");
   if (!strcmp(receiver, ""))
     strcpy(receiver, "pctv");
+  if (!strcmp(nvidia, ""))
+    strcpy(nvidia, "no");
+  if (!strcmp(audio, ""))
+    strcpy(audio, "analog");
+  if (!strcmp(phy, ""))
+    strcpy(phy, "auto");
+  if (!strcmp(wimo, ""))
+    strcpy(wimo, "managed");
 }
 
 char *GetVersionNumber () {
@@ -237,6 +245,16 @@ void GenerateISO (HWND hwnd) {
   printf("Receiver : %s\n", receiver);
   printf("Language : %s\n", lang);
   printf("Subfont : %s\n", subfont);
+  printf("NVidia vidix : %s\n", nvidia);
+  printf("Audio output : %s\n", audio);
+  printf("Image tempo : %ss\n", tempimg);
+  printf("Network type : %s\n", phy);
+  printf("Wifi mode : %s\n", wimo);
+  printf("Wifi WEP key : %s\n", wiwe);
+  printf("Geexbox IP : %s\n", ipge);
+  printf("Gateway IP : %s\n", ipga);
+  printf("User login : %s\n", smbus);
+  printf("User Password : %s\n", smbpw);
 
   l = find_language(lang);
 
@@ -307,6 +325,35 @@ void GenerateISO (HWND hwnd) {
   } else {
     buf3[0] = '\0';
   }
+  if (!strcmp(audio, "spdif")) {
+    fp = fopen ("iso/GEEXBOX/etc/audio", "w");
+    fprintf (fp, "SPDIF=yes");
+    fclose (fp);
+  } else {
+    fp = fopen ("iso/GEEXBOX/etc/audio", "w");
+    fprintf (fp, "SPDIF=no");
+    fclose(fp);
+  }
+  if (!strcmp(nvidia, "no")) {
+    fp = fopen ("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix", "a");
+    fclose (fp);
+  } else {
+    DeleteFile("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix");
+  }
+  fp = fopen ("iso/GEEXBOX/etc/view_img_timeout", "w");
+  fprintf (fp, tempimg);
+  fclose (fp);
+
+  fp = fopen ("iso/GEEXBOX/etc/network", "w");
+  fprintf (fp, "PHY_TYPE=\"%s\"\n", phy);
+  fprintf (fp, "WIFI_MODE=\"%s\"\n", wimo);
+  fprintf (fp, "WIFI_WEP=\"%s\"\n", wiwe);
+  fprintf (fp, "WIFI_ESSID=\"%s\"\n", wies);
+  fprintf (fp, "HOST=\"%s\"\n", ipge);
+  fprintf (fp, "GATEWAY=\"%s\"\n", ipga);
+  fprintf (fp, "SMB_USER=\"%s\"\n", smbus);
+  fprintf (fp, "SMB_PWD=\"%s\"", smbpw);
+  fclose (fp);  
 
   sprintf(buf, "lirc/lircrc_%s", remote);
   CopyFile(buf, "iso/GEEXBOX/etc/lircrc", FALSE);
@@ -357,8 +404,24 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
     SendDlgItemMessage(hwnd, REMOTE_LIST, CB_SELECTSTRING, 0, (LPARAM)"pctv");
     ListReceivers(hwnd);
     SendDlgItemMessage(hwnd, RECEIVER_LIST, CB_SELECTSTRING, 0,(LPARAM)"pctv");
+    SendDlgItemMessage(hwnd, NVIDIA_LIST, CB_ADDSTRING, 0,(LPARAM)"no");
+    SendDlgItemMessage(hwnd, NVIDIA_LIST, CB_ADDSTRING, 0,(LPARAM)"yes");
+    SendDlgItemMessage(hwnd, NVIDIA_LIST, CB_SELECTSTRING, 0,(LPARAM)"no");
+    SendDlgItemMessage(hwnd, AUDIO_LIST, CB_ADDSTRING, 0,(LPARAM)"analog");
+    SendDlgItemMessage(hwnd, AUDIO_LIST, CB_ADDSTRING, 0,(LPARAM)"spdif");
+    SendDlgItemMessage(hwnd, AUDIO_LIST, CB_SELECTSTRING, 0,(LPARAM)"analog");
+    SendDlgItemMessage(hwnd, PHY_LIST, CB_ADDSTRING, 0,(LPARAM)"auto");
+    SendDlgItemMessage(hwnd, PHY_LIST, CB_ADDSTRING, 0,(LPARAM)"wifi");
+    SendDlgItemMessage(hwnd, PHY_LIST, CB_ADDSTRING, 0,(LPARAM)"ethernet");
+    SendDlgItemMessage(hwnd, PHY_LIST, CB_SELECTSTRING, 0,(LPARAM)"auto");
+    SendDlgItemMessage(hwnd, WIMO_LIST, CB_ADDSTRING, 0,(LPARAM)"managed");
+    SendDlgItemMessage(hwnd, WIMO_LIST, CB_ADDSTRING, 0,(LPARAM)"ad-hoc");
+    SendDlgItemMessage(hwnd, WIMO_LIST, CB_SELECTSTRING, 0,(LPARAM)"managed");
     sprintf(caption, "GeeXboX Generator %s", GetVersionNumber());
     SetWindowText(hwnd, caption);
+    SetWindowText(GetDlgItem(hwnd, TEMPOIMG), "10");
+    SetWindowText(GetDlgItem(hwnd, WIFIESSID), "any");
+    SetWindowText(GetDlgItem(hwnd, SMBUSER), "SHARE");
     break;
 
   case WM_COMMAND:
@@ -391,7 +454,63 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
         GetDlgItemText(hwnd, RECEIVER_LIST, receiver, 50);
         break;
       }
-      break;   
+      break;
+    case NVIDIA_LIST:
+      switch (HIWORD(wParam)) {
+      case LBN_SELCHANGE:
+        GetDlgItemText(hwnd, NVIDIA_LIST, nvidia, 50);
+        break;
+      }
+      break; 
+    case AUDIO_LIST:
+      switch (HIWORD(wParam)) {
+      case LBN_SELCHANGE:
+        GetDlgItemText(hwnd, AUDIO_LIST, audio, 50);
+        break;
+      }
+      break;
+    case PHY_LIST:
+      switch (HIWORD(wParam)) {
+      case LBN_SELCHANGE:
+        GetDlgItemText(hwnd, PHY_LIST, phy, 50);
+        break;
+      }
+      break;
+    case WIMO_LIST:
+      switch (HIWORD(wParam)) {
+      case LBN_SELCHANGE:
+        GetDlgItemText(hwnd, WIMO_LIST, wimo, 50);
+        break;
+      }
+      break;
+    case TEMPOIMG:
+        GetDlgItemText(hwnd, TEMPOIMG, tempimg, 50);
+        break;
+      break;
+    case WIFIWEP:
+        GetDlgItemText(hwnd, WIFIWEP, wiwe, 50);
+        break;
+      break;
+    case WIFIESSID:
+        GetDlgItemText(hwnd, WIFIESSID, wies, 50);
+        break;
+      break;
+    case IPGEEX:
+        GetDlgItemText(hwnd, IPGEEX, ipge, 50);
+        break;
+      break;
+    case IPGAT:
+        GetDlgItemText(hwnd, IPGAT, ipga, 50);
+        break;
+      break;
+    case SMBUSER:
+        GetDlgItemText(hwnd, SMBUSER, smbus, 50);
+        break;
+      break;
+    case SMBPWD:
+        GetDlgItemText(hwnd, SMBPWD, smbpw, 50);
+        break;
+      break;
     case LANG_LIST:
       switch (HIWORD(wParam)) {
       case LBN_SELCHANGE:
