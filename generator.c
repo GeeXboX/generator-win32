@@ -254,7 +254,7 @@ void GenerateISO (HWND hwnd) {
   for (i = 0; i < 2; i++) {
     if (filelist[i] && FileExists(filelist[i]) == FALSE)
     {
-      sprintf(buf3, "%s font is missing", sub_font);
+      sprintf(buf3, "%s font is missing.\nPlease visit the README - EXTRA SUBTITLE FONTS section", sub_font);
       printf("*** %s ***\n", buf3);
       MessageBox(hwnd, buf3, "ERROR", MB_OK | MB_ICONERROR);
       return;
