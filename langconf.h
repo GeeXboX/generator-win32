@@ -19,6 +19,7 @@
 #define LANGCONF_H_
 
 #define PATH_LANGCONF "language/lang.conf"
+#define SUBFONT_AS_LANGUAGE "(Same as the language)"
 
 struct langinfo {
   char shortname[10];

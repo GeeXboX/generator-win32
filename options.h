@@ -51,5 +51,7 @@ typedef struct {
 
 geexbox_options_t * init_options (void);
 void free_options (geexbox_options_t *opts);
+void set_default_options_value (geexbox_options_t *opts);
+void display_options_to_console (HWND hwnd, geexbox_options_t *opts);
 
 #endif

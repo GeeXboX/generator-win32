@@ -22,31 +22,9 @@
 #include "langconf.h"
 #include "options.h"
 
-#define SUBFONT_AS_LANGUAGE "(Same as the language)"
 #define DOCS_PATH "DOCS/README_"
 
 static geexbox_options_t *opts;
-
-static void
-associate (void)
-{
-  if (!strcmp (opts->lang, ""))
-    strcpy (opts->lang, deflang->name);
-  if (!strcmp (opts->subfont, ""))
-    strcpy (opts->subfont, SUBFONT_AS_LANGUAGE);
-  if (!strcmp (opts->remote, ""))
-    strcpy (opts->remote, "atiusb");
-  if (!strcmp (opts->receiver, ""))
-    strcpy (opts->receiver, "atiusb");
-  if (!strcmp (opts->vidix, ""))
-    strcpy (opts->vidix, "no");
-  if (!strcmp (opts->audio, ""))
-    strcpy (opts->audio, "analog");
-  if (!strcmp (opts->net->type, ""))
-    strcpy (opts->net->type, "auto");
-  if (!strcmp (opts->net->wifi->mode, ""))
-    strcpy (opts->net->wifi->mode, "managed");
-}
 
 static char *
 GetVersionNumber (void)
@@ -298,25 +276,7 @@ GenerateISO (HWND hwnd)
   FILE *fp;
 
   printf ("*** Generating ISO image ***\n");
-  printf ("Remote : %s\n", opts->remote);
-  printf ("Receiver : %s\n", opts->receiver);
-  printf ("Language : %s\n", opts->lang);
-  printf ("Subfont : %s\n", opts->subfont);
-  printf ("NVidia vidix : %s\n", opts->vidix);
-  printf ("Audio output : %s\n", opts->audio);
-  printf ("Image tempo : %ss\n", opts->image_tempo);
-  printf ("Network type : %s\n", opts->net->type);
-  printf ("Wifi mode : %s\n", opts->net->wifi->mode);
-  printf ("Wifi WEP key : %s\n", opts->net->wifi->wep);
-  printf ("Geexbox IP : %s\n", opts->net->host_ip);
-  printf ("Gateway IP : %s\n", opts->net->gateway_ip);
-  printf ("DNS Server IP : %s\n", opts->net->dns);
-  printf ("User login : %s\n", opts->net->smb->username);
-  printf ("User Password : %s\n", opts->net->smb->password);
-  printf ("Enable Telnet Server : %s\n",
-          IsDlgButtonChecked (hwnd, TELNET_SERVER) ? "yes" : "no");
-  printf ("Enable FTP Server : %s\n",
-          IsDlgButtonChecked (hwnd, FTP_SERVER) ? "yes" : "no");
+  display_options_to_console (hwnd, opts);
 
   l = find_language (opts->lang);
 
@@ -508,13 +468,13 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
       switch (LOWORD (wParam))
         {
         case IDC_OK:
-          associate ();
+          set_default_options_value (opts);
           GenerateISO (hwnd);
           break;
         case IDC_HLP:
           {
             char load[30], tmp[30];
-            associate ();
+            set_default_options_value (opts);
             sprintf (tmp, "%s%s.txt", DOCS_PATH, opts->lang);
             if (GetFileAttributes (tmp) == -1) /* File doesn't exist. */
               sprintf (tmp, "%sen.txt", DOCS_PATH);
