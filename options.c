@@ -33,14 +33,18 @@ init_options (void)
   opts->net = (network_options_t *) malloc (sizeof (network_options_t));
   opts->net->wifi = (wifi_options_t *) malloc (sizeof (wifi_options_t));
   opts->net->smb = (samba_options_t *) malloc (sizeof (samba_options_t));
+  opts->snd = (sound_options_t *) malloc (sizeof (sound_options_t));
 
   *opts->lang = *opts->subfont = *opts->remote = *opts->receiver = '\0';
-  *opts->vidix = *opts->audio = '\0';
+  *opts->vidix = '\0';
   *opts->net->type = *opts->net->host_ip = '\0';
   *opts->net->gateway_ip = *opts->net->dns = '\0';
   *opts->net->wifi->mode = *opts->net->wifi->wep = '\0';
   *opts->net->wifi->essid = '\0';
   *opts->net->smb->username = *opts->net->smb->password = '\0';
+  opts->snd->card_id = 0;
+  opts->snd->mode = SOUND_MODE_ANALOG;
+  opts->snd->channels = 2;
 
   return opts;
 }
@@ -51,6 +55,7 @@ free_options (geexbox_options_t *opts)
   free (opts->net->wifi);
   free (opts->net->smb);
   free (opts->net);
+  free (opts->snd);
   free (opts);
 }
 
@@ -67,8 +72,6 @@ set_default_options_value (geexbox_options_t *opts)
     strcpy (opts->receiver, "atiusb");
   if (!strcmp (opts->vidix, ""))
     strcpy (opts->vidix, "no");
-  if (!strcmp (opts->audio, ""))
-    strcpy (opts->audio, "analog");
   if (!strcmp (opts->net->type, ""))
     strcpy (opts->net->type, "auto");
   if (!strcmp (opts->net->wifi->mode, ""))
@@ -83,7 +86,6 @@ display_options_to_console (HWND hwnd, geexbox_options_t *opts)
   printf ("Language : %s\n", opts->lang);
   printf ("Subfont : %s\n", opts->subfont);
   printf ("NVidia vidix : %s\n", opts->vidix);
-  printf ("Audio output : %s\n", opts->audio);
   printf ("Image tempo : %ss\n", opts->image_tempo);
   printf ("Network type : %s\n", opts->net->type);
   printf ("Wifi mode : %s\n", opts->net->wifi->mode);
@@ -97,6 +99,12 @@ display_options_to_console (HWND hwnd, geexbox_options_t *opts)
           IsDlgButtonChecked (hwnd, TELNET_SERVER) ? "yes" : "no");
   printf ("Enable FTP Server : %s\n",
           IsDlgButtonChecked (hwnd, FTP_SERVER) ? "yes" : "no");
+  printf ("Audio Card's ID : %d\n", opts->snd->card_id);
+  printf ("Audio Mode : %s\n",
+          (opts->snd->mode == SOUND_MODE_SPDIF) ? "spdif" : "analog");
+  printf ("Nr. of Channels : %d\n", opts->snd->channels);
+  printf ("AC3 Decoding : %s\n",
+          IsDlgButtonChecked (hwnd, AUDIO_HWAC3) ? "hardware" : "software");
 }
 
 int
@@ -112,8 +120,14 @@ write_options_to_disk (HWND hwnd, geexbox_options_t *opts,
     return res;
 
   fp = fopen ("iso/GEEXBOX/etc/audio", "wb");
-  fprintf (fp, "SPDIF=%s\n", !strcmp (opts->audio, "spdif") ? "yes" : "no");
+  fprintf (fp, "ALSA_CARD=%d\n", opts->snd->card_id);
+  fprintf (fp, "SOUNDCARD_MODE=%s\n",
+           (opts->snd->mode == SOUND_MODE_SPDIF) ? "SPDIF" : "analog");
+  fprintf (fp, "AC3_DECODER=%s\n",
+           IsDlgButtonChecked (hwnd, AUDIO_HWAC3) ? "hardware" : "software");
+  fprintf (fp, "CHANNELS=%d\n", opts->snd->channels);
   fclose (fp);
+
   if (!strcmp (opts->vidix, "no"))
     {
       fp = fopen ("iso/GEEXBOX/etc/mplayer/no_nvidia_vidix", "ab");

@@ -20,10 +20,13 @@
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
 
-IDD_MAIN DIALOG DISCARDABLE  0, 0, 363, 205
+IDD_MAIN DIALOG DISCARDABLE  0, 0, 365, 260
 STYLE WS_OVERLAPPEDWINDOW
 FONT 8, "MS Sans Serif"
 BEGIN
+    /* GeeXboX Options */
+    GROUPBOX        "GeeXboX's Options", IDC_STATIC, 5, 5, 175, 105
+
     LTEXT           "Language :", IDC_STATIC, 10, 15, 60, 8
     COMBOBOX        LANG_LIST, 75, 15, 100, 106, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL
 
@@ -39,11 +42,33 @@ BEGIN
     LTEXT           "NVidia vidix :", IDC_STATIC, 10, 75, 60, 8
     COMBOBOX        NVIDIA_LIST, 75, 75, 100, 106, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL
 
-    LTEXT           "Audio output :", IDC_STATIC, 10, 90, 60, 8
-    COMBOBOX        AUDIO_LIST, 75, 90, 100, 106, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL
+    LTEXT           "Image tempo (in s) :", IDC_STATIC, 10, 90, 70, 8
+    EDITTEXT        TEMPOIMG, 75, 90, 100, 12, ES_AUTOHSCROLL
 
-    LTEXT           "Image tempo (in s) :", IDC_STATIC, 10, 105, 70, 8
-    EDITTEXT        TEMPOIMG, 75, 105, 100, 12, ES_AUTOHSCROLL
+    /* Network Services */
+    GROUPBOX        "Network Services", IDC_STATIC, 5, 112, 175, 70
+
+    LTEXT           "WARNING : Enabling these services opens a gate which authorize remote anonymous connection to your computer. Only enable this if you know what you're doing.", IDC_STATIC, 10, 122, 160, 8
+
+    CHECKBOX        "Telnet Server", TELNET_SERVER, 10, 157, 60, 8
+    CHECKBOX        "FTP Server", FTP_SERVER, 10, 167, 60, 8
+
+    /* Audio Options */
+    GROUPBOX        "Audio Options", IDC_STATIC, 5, 185, 175, 70
+
+    LTEXT           "Card's ID :", IDC_STATIC, 10, 195, 60, 8
+    EDITTEXT        AUDIO_CARD, 75, 195, 100, 12, ES_AUTOHSCROLL
+
+    LTEXT           "Mode :", IDC_STATIC, 10, 210, 60, 8
+    COMBOBOX        AUDIO_MODE_LIST, 75, 210, 100, 106, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL
+
+    LTEXT           "Nr. of Channels :", IDC_STATIC, 10, 225, 60, 8
+    COMBOBOX        AUDIO_CHANNELS_LIST, 75, 225, 100, 106, CBS_DROPDOWNLIST | WS_VSCROLL
+
+    CHECKBOX        "AC3/DTS passthrough", AUDIO_HWAC3, 10, 240, 100, 8
+
+    /* Network Options */
+    GROUPBOX        "Network Options", IDC_STATIC, 185, 5, 175, 148
 
     LTEXT           "Network's type :", IDC_STATIC, 190, 15, 60, 8
     COMBOBOX        PHY_LIST, 255, 15, 100, 106, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL
@@ -72,15 +97,8 @@ BEGIN
     LTEXT           "User password :", IDC_STATIC, 190, 135, 60, 8
     EDITTEXT        SMBPWD, 255, 135, 100, 12, ES_AUTOHSCROLL
 
-    CHECKBOX        "Telnet Server", TELNET_SERVER, 10, 175, 60, 8
-    CHECKBOX        "FTP Server", FTP_SERVER, 10, 185, 60, 8
-
+    /* Buttons */
     CTEXT           "If you don't know what an option is, keep default value.", IDC_STATIC, 215, 161, 120, 8
-    LTEXT           "WARNING : Enabling these services opens a gate which authorize remote anonymous connection to your computer. Only enable this if you know what you're doing.", IDC_STATIC, 10, 140, 160, 8
-
-    GROUPBOX        "GeeXboX's Options", IDC_STATIC, 5, 5, 173, 120
-    GROUPBOX        "Network Services", IDC_STATIC, 5, 130, 173, 70
-    GROUPBOX        "Network Options", IDC_STATIC, 185, 5, 173, 148
 
     PUSHBUTTON      "&Ok", IDC_OK, 215, 185, 50, 14
     PUSHBUTTON      "&Help", IDC_HLP, 270, 185, 50, 14

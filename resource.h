@@ -17,24 +17,31 @@
 
 #define IDD_MAIN                        101
 #define IDD_HLP                         102
-#define LANG_LIST                       1000
-#define SUBFONT_LIST                    1001
-#define REMOTE_LIST                     1002
-#define RECEIVER_LIST                   1003
-#define NVIDIA_LIST                     1004
-#define AUDIO_LIST                      1005
+#define IDC_OK                          103
+#define IDC_HLP                         104
+#define IDC_STATIC                      105
+
+#define LANG_LIST                       1001
+#define SUBFONT_LIST                    1002
+#define REMOTE_LIST                     1003
+#define RECEIVER_LIST                   1004
+#define NVIDIA_LIST                     1005
 #define TEMPOIMG                        1006
-#define PHY_LIST                        1007
-#define WIMO_LIST                       1008
-#define WIFIWEP                         1009
-#define WIFIESSID                       1010
-#define IPGEEX                          1011
-#define IPGAT                           1012
-#define IPDNS                           1013
-#define SMBUSER                         1014
-#define SMBPWD                          1015
-#define TELNET_SERVER                   1016
-#define FTP_SERVER                      1017
-#define IDC_OK                          1020
-#define IDC_HLP                         1021
-#define IDC_STATIC                      1022
+
+#define PHY_LIST                        1101
+#define WIMO_LIST                       1102
+#define WIFIWEP                         1103
+#define WIFIESSID                       1104
+#define IPGEEX                          1105
+#define IPGAT                           1106
+#define IPDNS                           1107
+#define SMBUSER                         1108
+#define SMBPWD                          1109
+
+#define TELNET_SERVER                   1201
+#define FTP_SERVER                      1202
+
+#define AUDIO_CARD                      1301
+#define AUDIO_MODE_LIST                 1302
+#define AUDIO_CHANNELS_LIST             1303
+#define AUDIO_HWAC3                     1304

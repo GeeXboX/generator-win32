@@ -18,6 +18,15 @@
 #ifndef OPTIONS_H_
 #define OPTIONS_H_
 
+#define SOUND_MODE_ANALOG 0
+#define SOUND_MODE_SPDIF 1
+#define SOUND_MODE_ANALOG_STR "Analog"
+#define SOUND_MODE_SPDIF_STR "S/PDIF"
+
+#define SOUND_CHANNELS_2 "Stereo (2)"
+#define SOUND_CHANNELS_4 "Surround (4)"
+#define SOUND_CHANNELS_6 "5.1 Surround (6)"
+
 typedef struct {
   char mode[50];
   char wep[50];
@@ -39,13 +48,19 @@ typedef struct {
 } network_options_t;
 
 typedef struct {
+  int card_id;
+  int mode;
+  int channels;
+} sound_options_t;
+
+typedef struct {
   char lang[50];
   char subfont[50];
   char remote[50];
   char receiver[50];
   char vidix[50];
-  char audio[50];
   char image_tempo[50];
+  sound_options_t *snd;
   network_options_t *net;
 } geexbox_options_t;
 

@@ -215,10 +215,23 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
       SendDlgItemMessage(hwnd, NVIDIA_LIST, CB_ADDSTRING, 0,(LPARAM) "no");
       SendDlgItemMessage (hwnd, NVIDIA_LIST, CB_ADDSTRING, 0,(LPARAM) "yes");
       SendDlgItemMessage (hwnd, NVIDIA_LIST, CB_SELECTSTRING, 0,(LPARAM) "no");
-      SendDlgItemMessage (hwnd, AUDIO_LIST, CB_ADDSTRING, 0,(LPARAM) "analog");
-      SendDlgItemMessage (hwnd, AUDIO_LIST, CB_ADDSTRING, 0,(LPARAM) "spdif");
-      SendDlgItemMessage (hwnd, AUDIO_LIST,
-                          CB_SELECTSTRING, 0,(LPARAM) "analog");
+
+      SetWindowText (GetDlgItem (hwnd, AUDIO_CARD), "0");
+      SendDlgItemMessage (hwnd, AUDIO_MODE_LIST,
+                          CB_ADDSTRING, 0, (LPARAM) SOUND_MODE_ANALOG_STR);
+      SendDlgItemMessage (hwnd, AUDIO_MODE_LIST,
+                          CB_ADDSTRING, 0, (LPARAM) SOUND_MODE_SPDIF_STR);
+      SendDlgItemMessage (hwnd, AUDIO_MODE_LIST,
+                          CB_SELECTSTRING, 0, (LPARAM) SOUND_MODE_ANALOG_STR);
+      SendDlgItemMessage (hwnd, AUDIO_CHANNELS_LIST,
+                          CB_ADDSTRING, 0, (LPARAM) SOUND_CHANNELS_2);
+      SendDlgItemMessage (hwnd, AUDIO_CHANNELS_LIST,
+                          CB_ADDSTRING, 0, (LPARAM) SOUND_CHANNELS_4);
+      SendDlgItemMessage (hwnd, AUDIO_CHANNELS_LIST,
+                          CB_ADDSTRING, 0, (LPARAM) SOUND_CHANNELS_6);
+      SendDlgItemMessage (hwnd, AUDIO_CHANNELS_LIST,
+                          CB_SELECTSTRING, 0, (LPARAM) SOUND_CHANNELS_2);
+
       SendDlgItemMessage (hwnd, PHY_LIST, CB_ADDSTRING, 0,(LPARAM) "auto");
       SendDlgItemMessage (hwnd, PHY_LIST, CB_ADDSTRING, 0,(LPARAM) "wifi");
       SendDlgItemMessage (hwnd, PHY_LIST, CB_ADDSTRING, 0,(LPARAM) "ethernet");
@@ -276,12 +289,53 @@ DlgProc (HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
               break;
             }
           break;
-        case AUDIO_LIST:
+        case AUDIO_CARD:
           switch (HIWORD (wParam))
             {
-            case LBN_SELCHANGE:
-              GetDlgItemText (hwnd, AUDIO_LIST, opts->audio, 50);
+              char tmp[50];
+            case EN_CHANGE:
+              GetDlgItemText (hwnd, AUDIO_CARD, tmp, 50);
+              opts->snd->card_id = atoi (tmp);
               break;
+            }
+          break;
+        case AUDIO_MODE_LIST:
+          switch (HIWORD (wParam))
+            {
+              char tmp[50];
+            case LBN_SELCHANGE:
+              GetDlgItemText (hwnd, AUDIO_MODE_LIST, tmp, 50);
+              if (!strcmp (tmp, SOUND_MODE_SPDIF_STR))
+                opts->snd->mode = SOUND_MODE_SPDIF;
+              else
+                opts->snd->mode = SOUND_MODE_ANALOG;
+              break;
+            }
+          break;
+        case AUDIO_CHANNELS_LIST:
+          switch (HIWORD (wParam))
+            {
+              char tmp[50];
+            case LBN_SELCHANGE:
+              GetDlgItemText (hwnd, AUDIO_CHANNELS_LIST, tmp, 50);
+              if (!strcmp (tmp, SOUND_CHANNELS_6))
+                opts->snd->channels = 6;
+              else if (!strcmp (tmp, SOUND_CHANNELS_4))
+                opts->snd->channels = 4;
+              else
+                opts->snd->mode = 2;
+              break;
+            }
+          break;
+        case AUDIO_HWAC3:
+          switch (HIWORD (wParam))
+            {
+            case BN_CLICKED:
+              if (IsDlgButtonChecked (hwnd, AUDIO_HWAC3)) 
+                CheckDlgButton (hwnd, AUDIO_HWAC3, BST_UNCHECKED);
+              else
+                CheckDlgButton (hwnd, AUDIO_HWAC3, BST_CHECKED);
+              break; 
             }
           break;
         case PHY_LIST:
