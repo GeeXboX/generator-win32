@@ -24,6 +24,7 @@
 #include "resource.h"
 #include "options.h"
 #include "langconf.h"
+#include "utils.h"
 
 geexbox_options_t *
 init_options (void)
@@ -168,41 +169,6 @@ write_options_to_disk (HWND hwnd, geexbox_options_t *opts,
   return res;
 }
 
-static void
-get_config_value (FILE *fp, const char *var, char *dst)
-{
-  static char buf[256];
-  char *line, *value, *end;
-
-  rewind (fp);
-  while ((line = fgets (buf, sizeof (buf), fp)))
-    {
-      while (isspace (*line))
-        line++;
-      while (isspace (line[strlen (line) - 1]))
-        line[strlen (line) - 1] = '\0';
-
-      if (*line == '#' || (value = strchr (line, '=')) == NULL)
-        continue;
-
-      *value++ = '\0';
-
-      if (strcmp (line, var))
-        continue;
-
-      while (*value != '"')
-        *value++;
-      *value++;
-      
-      end = strchr (value, '"');
-      value[strlen (value) - strlen (end)] = '\0';
-      strcpy (dst, value);
-      return;
-    }
-
-  *dst = '\0';
-}
-
 void
 read_options_from_disk (HWND hwnd, geexbox_options_t *opts)
 {
@@ -212,19 +178,19 @@ read_options_from_disk (HWND hwnd, geexbox_options_t *opts)
   if (fp)
     {
       char tmp[50];
-      get_config_value (fp, "ALSA_CARD", tmp);
+      get_shvar_value (fp, "ALSA_CARD", tmp);
       opts->snd->card_id = atoi (tmp);
 
-      get_config_value (fp, "SOUNDCARD_MODE", tmp);
+      get_shvar_value (fp, "SOUNDCARD_MODE", tmp);
       if (!strcmp (tmp, "SPDIF"))
         opts->snd->mode = SOUND_MODE_SPDIF;
       else
         opts->snd->mode = SOUND_MODE_ANALOG;
 
-      get_config_value (fp, "CHANNELS", tmp);
+      get_shvar_value (fp, "CHANNELS", tmp);
       opts->snd->channels = atoi (tmp);
 
-      get_config_value (fp, "AC3_DECODER", tmp);
+      get_shvar_value (fp, "AC3_DECODER", tmp);
       if (!strcmp (tmp, "software"))
         CheckDlgButton (hwnd, AUDIO_HWAC3, BST_UNCHECKED);
       else
@@ -252,23 +218,23 @@ read_options_from_disk (HWND hwnd, geexbox_options_t *opts)
   if (fp)
     {
       char tmp[50];
-      get_config_value (fp, "PHY_TYPE", opts->net->type);
-      get_config_value (fp, "WIFI_MODE", opts->net->wifi->mode);
-      get_config_value (fp, "WIFI_WEP", opts->net->wifi->wep);
-      get_config_value (fp, "WIFI_ESSID", opts->net->wifi->essid);
-      get_config_value (fp, "HOST", opts->net->host_ip);
-      get_config_value (fp, "GATEWAY", opts->net->gateway_ip);
-      get_config_value (fp, "DNS_SERVER", opts->net->dns);
-      get_config_value (fp, "SMB_USER", opts->net->smb->username);
-      get_config_value (fp, "SMB_PWD", opts->net->smb->password);
+      get_shvar_value (fp, "PHY_TYPE", opts->net->type);
+      get_shvar_value (fp, "WIFI_MODE", opts->net->wifi->mode);
+      get_shvar_value (fp, "WIFI_WEP", opts->net->wifi->wep);
+      get_shvar_value (fp, "WIFI_ESSID", opts->net->wifi->essid);
+      get_shvar_value (fp, "HOST", opts->net->host_ip);
+      get_shvar_value (fp, "GATEWAY", opts->net->gateway_ip);
+      get_shvar_value (fp, "DNS_SERVER", opts->net->dns);
+      get_shvar_value (fp, "SMB_USER", opts->net->smb->username);
+      get_shvar_value (fp, "SMB_PWD", opts->net->smb->password);
 
-      get_config_value (fp, "TELNET_SERVER", tmp);
+      get_shvar_value (fp, "TELNET_SERVER", tmp);
       if (!strcmp (tmp, "yes"))
         CheckDlgButton (hwnd, TELNET_SERVER, BST_CHECKED);
       else
         CheckDlgButton (hwnd, TELNET_SERVER, BST_UNCHECKED);
 
-      get_config_value (fp, "FTP_SERVER", tmp);
+      get_shvar_value (fp, "FTP_SERVER", tmp);
       if (!strcmp (tmp, "yes"))
         CheckDlgButton (hwnd, FTP_SERVER, BST_CHECKED);
       else
